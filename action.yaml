@@ -1,5 +1,5 @@
-action: submit
+action: done
 gpus: 0
-test: true
-milestone: method_runs
-notes: "Final verification CPU test: rerun patched scheduler script, regenerate baseline/method artifacts, and refresh canonical plus train/test scores through the reusable evaluator."
+test: false
+milestone: core_claim
+notes: "Final verification passed: CPU job regenerated artifacts and all score files, validate.py --compare passes, and the gym is ready with the synthetic-data limitation documented."

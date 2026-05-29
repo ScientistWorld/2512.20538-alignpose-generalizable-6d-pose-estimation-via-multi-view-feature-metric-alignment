@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 ## Progress Log
 
@@ -29,5 +29,10 @@
 - Updated `scripts/evaluate.sh` to discover all prediction artifacts through the reusable evaluator interface.
 - Submitting a CPU test job to regenerate method outputs and all score files before final `core_claim` sign-off.
 
+### [2026-05-29 04:25] - core_claim
+- CPU verification job `b00a7706-137` completed successfully with exit code 0.
+- `scripts/run.sh` regenerated baseline and AlignPose prediction artifacts, then refreshed canonical, train, and test score files.
+- Final scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00 with no ground-truth pose copying.
+
 ## Stop Justification
-- Active: validating packaging fixes before final completion.
+- Final verification complete at milestone `core_claim`.
