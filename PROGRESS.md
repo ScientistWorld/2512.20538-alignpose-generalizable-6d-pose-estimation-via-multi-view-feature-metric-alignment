@@ -8,17 +8,17 @@ The method code implements the core AlignPose computation at reduced scale: cand
 
 ## Results
 
-Local smoke results are available in `scoring/scores.json`. On the 12-scene synthetic benchmark, the single-view baseline reached AR 47.22 and AP 50.00, while the AlignPose reproduction reached AR 88.89 and AP 91.67. Mean ADD error decreased from 0.0820 to 0.0339, and final duplicate candidates decreased from 12.0 to 1.0.
+Scheduler job `90d08839-921` completed successfully with exit code 0 and reproduced the scores in `scoring/scores.json`. On the 12-scene synthetic benchmark, the single-view baseline reached AR 47.22 and AP 50.00, while the AlignPose reproduction reached AR 88.89 and AP 91.67. Mean ADD error decreased from 0.0820 to 0.0339, median translation error decreased from 0.0487 to 0.0214, median rotation error decreased from 12.68 degrees to 5.71 degrees, and final duplicate candidates decreased from 12.0 to 1.0.
 
-These local results support the core effect on the reduced target, but a scheduler job is being submitted before claiming `core_claim`.
+This supports the paper's central claim on the reduced target: calibrated multi-view aggregation plus feature-metric refinement improves over noisy single-view pose candidates while suppressing duplicate hypotheses.
 
 ## Remaining
 
-Run the packaged reproduction in the compute container and inspect `scoring/scores.json`. If the method does not improve over the baseline, tune the synthetic data difficulty or refinement settings without changing the AlignPose computation.
+Higher milestones would require adding more real BOP coverage, downloading public candidate archives where available, or implementing the full DINOv2/PCA/rendered-depth feature stack. The current package is complete for the reduced core-claim gym.
 
 ## Issues
 
-The exact BOP candidate archives and full single-view estimator stack are not bundled with the paper, so the first runnable target uses generated data. The compute job still needs to verify the container dependency path and end-to-end scripts.
+The exact BOP candidate archives and full single-view estimator stack are not bundled with the paper, so the runnable target uses generated data. The compute job verified the container dependency path and end-to-end scripts.
 
 ## Deviations from Paper
 

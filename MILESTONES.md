@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 Milestone levels:
 
@@ -23,6 +23,11 @@ Milestone levels:
 - Implemented a reduced AlignPose pipeline with world-frame candidate aggregation, 3D NMS, multi-view feature-metric SE(3) refinement, and final NMS.
 - Ran the end-to-end reproduction locally on the 12-scene synthetic benchmark; scheduler job is being submitted to verify the packaged environment.
 
+### [2026-05-29 03:18] - core_claim
+- Scheduler job `90d08839-921` completed successfully in the compute container with exit code 0.
+- Verified the core claim on the reduced benchmark: AlignPose improved AR from 47.22 to 88.89 and AP from 50.00 to 91.67 over the single-view candidate baseline.
+- Verified the duplicate-suppression constraint: final candidate count decreased from 12.0 to 1.0 after NMS/refinement.
+
 ## Stop Justification
 
-- Not stopping. The next job verifies whether the reproduced results support `core_claim`.
+- Stopping at `core_claim`: the package includes a runnable method, baseline, evaluator, reference scoring, generated dataset, and successful container job evidence. Full BOP reproduction remains out of scope because the required candidate archives and single-view estimator stack are not bundled with the paper.
