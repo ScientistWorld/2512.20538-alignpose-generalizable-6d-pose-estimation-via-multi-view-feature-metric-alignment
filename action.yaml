@@ -1,5 +1,5 @@
-action: submit
+action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Run evaluate_train.sh and evaluate_test.sh against existing prediction artifacts; populate scores_train/test for split validation."
+notes: "Alternating-scene train/test split over synthetic T-LESS Co-op artifacts; 26 train metric values and 26 test metric values across alignpose and single_view_candidate. AlignPose train/test AR 100.0/94.44, AP 100.0/100.0, candidate gain 2.64/1.95; baseline AR 55.56/38.89, AP 66.67/33.33. Caveats: small six-scene slices, AP saturated for alignpose, GT poses remain in benchmark JSON with exact-copy sentinel."
