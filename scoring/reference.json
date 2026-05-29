@@ -5,16 +5,19 @@
       "weight": 0.55,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0},
-        "AP": {"higher_is_better": true, "coefficient": 0.8},
-        "mean_add_error": {"higher_is_better": false, "coefficient": -0.4},
-        "median_translation_error": {"higher_is_better": false, "coefficient": -0.2},
-        "median_rotation_error_deg": {"higher_is_better": false, "coefficient": -0.2},
-        "mean_final_candidates": {"higher_is_better": false, "coefficient": -0.1},
-        "num_views": {"higher_is_better": false, "coefficient": -0.05},
-        "uses_depth_sensor": {"higher_is_better": false, "coefficient": -1.0},
-        "object_specific_training": {"higher_is_better": false, "coefficient": -1.0},
-        "uses_dinov2_features": {"higher_is_better": true, "coefficient": 0.1}
+        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "Average recall over ADD-style pose-error thresholds on the selected multi-view scenes."},
+        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "Detection-style pose accuracy at the central ADD threshold."},
+        "complete_prediction_rate": {"higher_is_better": true, "coefficient": 0.4, "description": "Fraction of selected scenes with a usable prediction, preventing methods from omitting hard cases."},
+        "candidate_add_gain_pct": {"higher_is_better": true, "coefficient": 0.5, "description": "Average ADD improvement over the best supplied single-view candidate, normalized by object diameter."},
+        "exact_pose_copy_rate": {"higher_is_better": false, "coefficient": -1.2, "description": "Sentinel for exact ground-truth pose copying from the benchmark JSON rather than solving the pose task."},
+        "mean_add_error": {"higher_is_better": false, "coefficient": -0.4, "description": "Mean ADD-style 3D pose error over all selected scenes, with missing predictions counted as failures."},
+        "median_translation_error": {"higher_is_better": false, "coefficient": -0.2, "description": "Median translation error in world coordinates."},
+        "median_rotation_error_deg": {"higher_is_better": false, "coefficient": -0.2, "description": "Median geodesic rotation error in degrees."},
+        "mean_final_candidates": {"higher_is_better": false, "coefficient": -0.1, "description": "Average number of retained final hypotheses, discouraging duplicate-candidate flooding."},
+        "num_views": {"higher_is_better": false, "coefficient": -0.05, "description": "Number of calibrated RGB views consumed by the method, tracked as a mild resource constraint."},
+        "uses_depth_sensor": {"higher_is_better": false, "coefficient": -1.0, "description": "Constraint flag penalizing methods that use measured depth despite the RGB-only target setting."},
+        "object_specific_training": {"higher_is_better": false, "coefficient": -1.0, "description": "Constraint flag penalizing object-specific training in the unseen-object/generalized-pose setting."},
+        "uses_dinov2_features": {"higher_is_better": true, "coefficient": 0.0, "description": "Informational flag for whether the submitted method uses DINOv2-style frozen features."}
       },
       "results": {
         "single_view_candidate": {"type": "baseline", "AR": 68.2, "AP": 68.9, "num_views": 1, "uses_depth_sensor": 0, "object_specific_training": 0, "uses_dinov2_features": 0},
@@ -26,8 +29,8 @@
       "weight": 0.25,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0},
-        "AP": {"higher_is_better": true, "coefficient": 0.8}
+        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "Average recall over BOP pose-error thresholds."},
+        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "Average precision over BOP pose-error thresholds."}
       },
       "results": {
         "single_view_candidate": {"type": "baseline", "AR": 69.7, "AP": 69.5},
@@ -39,8 +42,8 @@
       "weight": 0.10,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0},
-        "AP": {"higher_is_better": true, "coefficient": 0.8}
+        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "Average recall over BOP pose-error thresholds for unseen ITODD-MV objects."},
+        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "Average precision over BOP pose-error thresholds for unseen ITODD-MV objects."}
       },
       "results": {
         "single_view_candidate": {"type": "baseline", "AR": 36.9, "AP": 31.8},
@@ -53,8 +56,8 @@
       "weight": 0.10,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0},
-        "AP": {"higher_is_better": true, "coefficient": 0.8}
+        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "Average recall over BOP pose-error thresholds for unseen HouseCat6D objects."},
+        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "Average precision over BOP pose-error thresholds for unseen HouseCat6D objects."}
       },
       "results": {
         "single_view_candidate": {"type": "baseline", "AR": 69.3, "AP": 65.3},

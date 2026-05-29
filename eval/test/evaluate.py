@@ -37,6 +37,17 @@ def add_error(points, pred, gt):
     return float(np.mean(np.linalg.norm(transform(points, pred) - transform(points, gt), axis=1)))
 
 
+def best_candidate_add_error(points, scene):
+    gt = pose(scene["T_WO_gt"])
+    errors = []
+    for view in scene["views"]:
+        for candidate in view["candidates"]:
+            errors.append(add_error(points, pose(candidate["T_WO"]), gt))
+    if not errors:
+        return None
+    return min(errors)
+
+
 def rotation_error_deg(pred, gt):
     rel = pred["R"] @ gt["R"].T
     cosine = np.clip((np.trace(rel) - 1.0) / 2.0, -1.0, 1.0)
@@ -100,18 +111,34 @@ def evaluate_one(dataset, scenes, pred_path):
     rotation_errors = []
     translation_errors = []
     nms_counts = []
+    candidate_gains = []
+    exact_copies = []
+    complete_count = 0
     for scene in scenes:
+        gt = pose(scene["T_WO_gt"])
+        candidate_error = best_candidate_add_error(points, scene)
         pred_entry = preds.get(scene["scene_id"])
         if pred_entry is None:
+            add_errors.append(diameter)
+            rotation_errors.append(180.0)
+            translation_errors.append(diameter)
+            nms_counts.append(0.0)
+            if candidate_error is not None:
+                candidate_gains.append(100.0 * (candidate_error - diameter) / diameter)
+            exact_copies.append(0.0)
             continue
         pred = pose(pred_entry["T_WO"])
-        gt = pose(scene["T_WO_gt"])
-        add_errors.append(add_error(points, pred, gt))
+        scene_add_error = add_error(points, pred, gt)
+        add_errors.append(scene_add_error)
         rotation_errors.append(rotation_error_deg(pred, gt))
         translation_errors.append(float(np.linalg.norm(pred["t"] - gt["t"])))
         nms_counts.append(float(pred_entry.get("num_after_final_nms", 1)))
+        if candidate_error is not None:
+            candidate_gains.append(100.0 * (candidate_error - scene_add_error) / diameter)
+        exact_copies.append(float(scene_add_error <= 1e-12))
+        complete_count += 1
 
-    if not add_errors:
+    if complete_count == 0:
         raise ValueError(f"{pred_path} has no predictions for the {SLICE_NAME} slice")
 
     add_arr = np.asarray(add_errors, dtype=np.float64)
@@ -120,6 +147,9 @@ def evaluate_one(dataset, scenes, pred_path):
     return {
         "AR": 100.0 * float(np.mean(recalls)),
         "AP": 100.0 * float(np.mean(add_arr < 0.10 * diameter)),
+        "complete_prediction_rate": 100.0 * complete_count / len(scenes),
+        "candidate_add_gain_pct": float(np.mean(candidate_gains)) if candidate_gains else 0.0,
+        "exact_pose_copy_rate": 100.0 * float(np.mean(exact_copies)),
         "mean_add_error": float(np.mean(add_arr)),
         "median_translation_error": float(np.median(translation_errors)),
         "median_rotation_error_deg": float(np.median(rotation_errors)),
