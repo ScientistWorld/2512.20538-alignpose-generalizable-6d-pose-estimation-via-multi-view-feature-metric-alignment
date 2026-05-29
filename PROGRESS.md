@@ -24,6 +24,8 @@ Continuing audit on 2026-05-29 found that `method/alignpose.py` selected the fin
 
 CPU test job `cba204d5-f6f` reran `scripts/reproduce.sh` after the fix and completed successfully. The regenerated scores were unchanged: the single-view baseline reached AR 47.22 and AP 50.00, while AlignPose reached AR 88.89 and AP 91.67. The `core_claim` milestone is therefore restored with label-free method outputs.
 
+Audit on 2026-05-29 found that the feature extraction path was still too reduced: it used handcrafted RGB/gradient descriptors instead of the paper's frozen feature maps extracted from query and rendered object images. The method has been revised to use a local DINOv2-S feature extractor, render coarse-pose RGB-D object views, lift rendered descriptors into object coordinates, and optimize the same multi-view SE(3) feature-metric objective. The scorer now records explicit protocol constraint metrics. A scheduler job is pending to validate the revised pipeline before claiming `core_claim` again.
+
 ## Deviations from Paper
 
-The full paper uses BOP datasets, DINOv2-L layer 18 features with PCA, RGB-D rendering for registered feature lifting, and BOP AR/AP metrics. This workspace currently uses a deterministic synthetic RGB feature benchmark and NumPy feature maps so the core multi-view aggregation plus feature-metric SE(3) refinement can run within the available environment. The algorithmic stages are preserved; the data scale and feature extractor are reduced.
+The full paper uses BOP datasets, DINOv2-L layer 18 features with PCA, RGB-D rendering for registered feature lifting, and BOP AR/AP metrics. This workspace currently uses a deterministic synthetic benchmark and DINOv2-S layer 9 features without PCA so the core multi-view aggregation plus feature-metric SE(3) refinement can run within the available environment. The algorithmic stages are preserved; the dataset scale and backbone size are reduced.

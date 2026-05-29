@@ -10,7 +10,17 @@ from pathlib import Path
 def run_baseline(dataset_path, output_path, max_scenes=None):
     data = json.loads(Path(dataset_path).read_text())
     scenes = data["scenes"][:max_scenes] if max_scenes else data["scenes"]
-    out = {"metadata": {"method": "best_single_view_candidate"}, "predictions": []}
+    n_views = len(data["scenes"][0]["views"]) if data["scenes"] else 0
+    out = {
+        "metadata": {
+            "method": "best_single_view_candidate",
+            "num_views": n_views,
+            "uses_depth_sensor": False,
+            "object_specific_training": False,
+            "uses_dinov2_features": False,
+        },
+        "predictions": [],
+    }
     for scene in scenes:
         candidates = []
         for view in scene["views"]:

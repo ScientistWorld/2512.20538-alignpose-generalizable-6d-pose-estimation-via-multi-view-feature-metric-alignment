@@ -10,11 +10,47 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import numpy as np
 
 from method.geometry import compose, pose_from_json, pose_to_json, project, se3_left_update, transform
+
+
+class DinoPatchFeatures:
+    """Frozen DINOv2 patch feature extractor used for query and render images."""
+
+    def __init__(self, model_dir, layer=9, device=None):
+        import torch
+        import torch.nn.functional as F
+        from PIL import Image
+        from transformers import AutoImageProcessor, AutoModel
+
+        self.torch = torch
+        self.F = F
+        self.Image = Image
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.layer = layer
+        self.processor = AutoImageProcessor.from_pretrained(model_dir, local_files_only=True)
+        self.model = AutoModel.from_pretrained(model_dir, local_files_only=True).to(self.device)
+        self.model.eval()
+
+    def __call__(self, image):
+        arr = np.asarray(image, dtype=np.float32)
+        if arr.max() <= 1.0:
+            arr = arr * 255.0
+        pil = self.Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), mode="RGB")
+        inputs = self.processor(images=pil, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        with self.torch.no_grad():
+            outputs = self.model(**inputs, output_hidden_states=True)
+        hidden = outputs.hidden_states[self.layer][0, 1:, :]
+        grid = int(math.sqrt(hidden.shape[0]))
+        fmap = hidden[: grid * grid].reshape(grid, grid, -1).permute(2, 0, 1)[None]
+        fmap = self.F.interpolate(fmap, size=arr.shape[:2], mode="bilinear", align_corners=False)[0]
+        fmap = self.F.normalize(fmap, dim=0).permute(1, 2, 0).cpu().numpy().astype(np.float64)
+        return fmap
 
 
 def load_dataset(path):
@@ -24,17 +60,24 @@ def load_dataset(path):
     return data, model_points, model_features
 
 
-def feature_image(image):
-    arr = np.asarray(image, dtype=np.float64)
-    h, w, _ = arr.shape
-    yy, xx = np.mgrid[0:h, 0:w]
-    gx = np.zeros((h, w, 1), dtype=np.float64)
-    gy = np.zeros((h, w, 1), dtype=np.float64)
-    gray = arr.mean(axis=2, keepdims=True)
-    gx[:, 1:-1] = 0.5 * (gray[:, 2:] - gray[:, :-2])
-    gy[1:-1, :] = 0.5 * (gray[2:, :] - gray[:-2, :])
-    pos = np.stack([xx / max(1, w - 1), yy / max(1, h - 1)], axis=2)
-    return np.concatenate([arr, gx, gy, 0.15 * pos], axis=2)
+def render_rgbd(model_points, model_features, t_co, intrinsics, image_size):
+    image = np.full((image_size, image_size, 3), 0.03, dtype=np.float64)
+    depth = np.full((image_size, image_size), np.inf, dtype=np.float64)
+    index = np.full((image_size, image_size), -1, dtype=np.int64)
+    pts_c = transform(model_points, t_co)
+    uvz = project(pts_c, intrinsics)
+    for point_idx, (u, v, z) in enumerate(uvz):
+        if z <= 0:
+            continue
+        ui, vi = int(round(u)), int(round(v))
+        for du in (-1, 0, 1):
+            for dv in (-1, 0, 1):
+                x, y = ui + du, vi + dv
+                if 0 <= x < image_size and 0 <= y < image_size and z < depth[y, x]:
+                    depth[y, x] = z
+                    index[y, x] = point_idx
+                    image[y, x] = model_features[point_idx]
+    return image, depth, index
 
 
 def sample_bilinear(fmap, uv):
@@ -55,20 +98,22 @@ def sample_bilinear(fmap, uv):
     return val, valid
 
 
-def registered_features(model_points, model_features, coarse_t_wo, t_cw, intrinsics, image_size, max_points):
+def registered_features(model_points, model_features, coarse_t_wo, t_cw, intrinsics, image_size, max_points, backbone):
     t_co = compose(t_cw, coarse_t_wo)
-    pts_c = transform(model_points, t_co)
-    uvz = project(pts_c, intrinsics)
-    valid = (uvz[:, 2] > 0) & (uvz[:, 0] >= 1) & (uvz[:, 0] < image_size - 2) & (uvz[:, 1] >= 1) & (uvz[:, 1] < image_size - 2)
-    idx = np.nonzero(valid)[0]
-    if len(idx) > max_points:
-        idx = idx[np.linspace(0, len(idx) - 1, max_points).astype(int)]
-    base = model_features[idx]
-    # Fixed descriptors mirror the query feature channels: RGB, gradients, and weak position channels.
-    zeros = np.zeros((len(idx), 2), dtype=np.float64)
-    uv_norm = np.stack([uvz[idx, 0] / (image_size - 1), uvz[idx, 1] / (image_size - 1)], axis=1) * 0.15
-    desc = np.concatenate([base, zeros, uv_norm], axis=1)
-    return model_points[idx], desc
+    render, _depth, index = render_rgbd(model_points, model_features, t_co, intrinsics, image_size)
+    fmap = backbone(render)
+    valid_pixels = np.argwhere(index >= 0)
+    if len(valid_pixels) == 0:
+        return np.empty((0, 3), dtype=np.float64), np.empty((0, fmap.shape[2]), dtype=np.float64)
+    if len(valid_pixels) > max_points:
+        select = np.linspace(0, len(valid_pixels) - 1, max_points).astype(int)
+        valid_pixels = valid_pixels[select]
+    ys, xs = valid_pixels[:, 0], valid_pixels[:, 1]
+    model_idx = index[ys, xs]
+    # The paper lifts rendered patch descriptors through rendered depth into
+    # object coordinates. The synthetic point renderer stores the visible model
+    # point at each rendered pixel, which is the same object-frame lift.
+    return model_points[model_idx], fmap[ys, xs]
 
 
 def barron_weights(residual, alpha=-5.0, c=0.5):
@@ -84,6 +129,8 @@ def residual_vector(pose, view_reps, intrinsics):
     for rep in view_reps:
         t_co = compose(rep["T_CW"], pose)
         pts_c = transform(rep["points"], t_co)
+        if len(pts_c) == 0:
+            continue
         uvz = project(pts_c, intrinsics)
         sampled, valid = sample_bilinear(rep["query"], uvz[:, :2])
         diff = rep["features"] - sampled
@@ -91,6 +138,8 @@ def residual_vector(pose, view_reps, intrinsics):
         weights = np.sqrt(barron_weights(diff))[:, None]
         chunks.append((diff * weights).reshape(-1))
         losses.append(float(np.mean(np.linalg.norm(diff, axis=1))))
+    if not chunks:
+        return np.ones(1, dtype=np.float64), 1.0
     return np.concatenate(chunks), float(np.mean(losses))
 
 
@@ -152,11 +201,25 @@ def nms(candidates, model_points, threshold=0.4):
     return kept
 
 
-def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90):
+def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90, model_dir="data/downloads/dinov2-small", feature_layer=9):
     data, model_points, model_features = load_dataset(dataset_path)
     intrinsics = data["intrinsics"]
     image_size = data["image_size"]
-    results = {"metadata": {"method": "alignpose_synthetic", "nms_iou": 0.4, "max_points_per_view": max_points}, "predictions": []}
+    backbone = DinoPatchFeatures(model_dir=model_dir, layer=feature_layer)
+    results = {
+        "metadata": {
+            "method": "alignpose_synthetic_dinov2",
+            "feature_backbone": "facebook/dinov2-small",
+            "feature_layer": feature_layer,
+            "nms_iou": 0.4,
+            "max_points_per_view": max_points,
+            "num_views": len(data["scenes"][0]["views"]) if data["scenes"] else 0,
+            "uses_depth_sensor": False,
+            "object_specific_training": False,
+            "uses_dinov2_features": True,
+        },
+        "predictions": [],
+    }
     scenes = data["scenes"][:max_scenes] if max_scenes else data["scenes"]
     for scene in scenes:
         candidates = []
@@ -164,15 +227,18 @@ def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90):
             for cand in view["candidates"]:
                 candidates.append({"pose": pose_from_json(cand["T_WO"]), "score": float(cand["score"]), "source_view": cand["view_id"]})
         aggregated = nms(candidates, model_points, threshold=0.4)
+        query_maps = {view_i: backbone(view["image"]) for view_i, view in enumerate(scene["views"])}
         refined = []
-        for cand in aggregated:
+        for cand_i, cand in enumerate(aggregated):
             reps = []
-            for view in scene["views"]:
+            for view_i, view in enumerate(scene["views"]):
                 t_cw = pose_from_json(view["T_CW"])
-                pts, desc = registered_features(model_points, model_features, cand["pose"], t_cw, intrinsics, image_size, max_points)
-                reps.append({"T_CW": t_cw, "query": feature_image(view["image"]), "points": pts, "features": desc})
+                pts, desc = registered_features(
+                    model_points, model_features, cand["pose"], t_cw, intrinsics, image_size, max_points, backbone
+                )
+                reps.append({"T_CW": t_cw, "query": query_maps[view_i], "points": pts, "features": desc})
             pose, loss = lm_refine(cand["pose"], reps, intrinsics, max_iters=30)
-            refined.append({"pose": pose, "score": 1.0 - loss, "feature_loss": loss, "source_view": cand["source_view"]})
+            refined.append({"pose": pose, "score": 1.0 - loss, "feature_loss": loss, "source_view": cand["source_view"], "candidate_id": cand_i})
         refined = nms(refined, model_points, threshold=0.4)
         best = max(refined, key=lambda c: c["score"])
         results["predictions"].append({
@@ -193,8 +259,10 @@ def main():
     parser.add_argument("--output", default="outputs/alignpose_predictions.json")
     parser.add_argument("--max-scenes", type=int)
     parser.add_argument("--max-points", type=int, default=90)
+    parser.add_argument("--model-dir", default="data/downloads/dinov2-small")
+    parser.add_argument("--feature-layer", type=int, default=9)
     args = parser.parse_args()
-    run_alignpose(args.dataset, args.output, args.max_scenes, args.max_points)
+    run_alignpose(args.dataset, args.output, args.max_scenes, args.max_points, args.model_dir, args.feature_layer)
 
 
 if __name__ == "__main__":

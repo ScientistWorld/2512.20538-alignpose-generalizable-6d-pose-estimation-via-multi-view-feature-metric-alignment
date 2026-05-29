@@ -7,8 +7,11 @@ pose task with noisy single-view candidates, where the full multi-view pipeline
 should improve over the unrefined candidate baseline.
 
 - **Benefit metrics**: `AR`, `AP` (higher is better)
-- **Constraint metrics**: fixed RGB-only inputs, four calibrated views, one
-  object mesh, no object-specific training, no depth input
+- **Constraint metrics**: `num_views`, `uses_depth_sensor`,
+  `object_specific_training`, `uses_dinov2_features`, and
+  `mean_final_candidates`. These audit that the score comes from the intended
+  calibrated RGB-only, no-training setting with duplicate suppression rather
+  than extra sensors, extra labels, or unbounded duplicate predictions.
 - **How to run evaluation**: run `scripts/reproduce.sh`, or run
   `scripts/baseline.sh`, `scripts/method.sh`, then `scripts/evaluate.sh`.
 

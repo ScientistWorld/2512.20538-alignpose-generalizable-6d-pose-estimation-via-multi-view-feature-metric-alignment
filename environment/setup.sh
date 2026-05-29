@@ -16,4 +16,5 @@
 
 set -e
 
-uv pip install --system numpy
+uv pip install --system numpy pillow transformers safetensors
+uv pip install --system --index-url https://download.pytorch.org/whl/cpu torch

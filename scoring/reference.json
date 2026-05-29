@@ -10,11 +10,15 @@
         "mean_add_error": {"higher_is_better": false, "coefficient": -0.4},
         "median_translation_error": {"higher_is_better": false, "coefficient": -0.2},
         "median_rotation_error_deg": {"higher_is_better": false, "coefficient": -0.2},
-        "mean_final_candidates": {"higher_is_better": false, "coefficient": -0.1}
+        "mean_final_candidates": {"higher_is_better": false, "coefficient": -0.1},
+        "num_views": {"higher_is_better": false, "coefficient": -0.05},
+        "uses_depth_sensor": {"higher_is_better": false, "coefficient": -1.0},
+        "object_specific_training": {"higher_is_better": false, "coefficient": -1.0},
+        "uses_dinov2_features": {"higher_is_better": true, "coefficient": 0.1}
       },
       "results": {
-        "single_view_candidate": {"type": "baseline", "AR": 68.2, "AP": 68.9},
-        "alignpose": {"type": "proposed", "AR": 89.5, "AP": 92.4}
+        "single_view_candidate": {"type": "baseline", "AR": 68.2, "AP": 68.9, "num_views": 1, "uses_depth_sensor": 0, "object_specific_training": 0, "uses_dinov2_features": 0},
+        "alignpose": {"type": "proposed", "AR": 89.5, "AP": 92.4, "num_views": 4, "uses_depth_sensor": 0, "object_specific_training": 0, "uses_dinov2_features": 1}
       }
     },
     "ycbv_coop_ablation": {

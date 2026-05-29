@@ -29,6 +29,7 @@ def rot_deg(pred, gt):
 
 def evaluate_one(dataset, pred_path):
     pred_data = json.loads(Path(pred_path).read_text())
+    metadata = pred_data.get("metadata", {})
     preds = {p["scene_id"]: p for p in pred_data["predictions"]}
     points = np.asarray([p["xyz"] for p in dataset["object_model"]], dtype=np.float64)
     diameter = float(np.linalg.norm(points.max(axis=0) - points.min(axis=0)))
@@ -45,7 +46,7 @@ def evaluate_one(dataset, pred_path):
     add_arr = np.asarray(add_errors, dtype=np.float64)
     thresholds = [0.05 * diameter, 0.10 * diameter, 0.15 * diameter]
     recalls = [float(np.mean(add_arr < th)) for th in thresholds]
-    return {
+    metrics = {
         "AR": 100.0 * float(np.mean(recalls)),
         "AP": 100.0 * float(np.mean(add_arr < 0.10 * diameter)),
         "mean_add_error": float(np.mean(add_arr)),
@@ -53,6 +54,13 @@ def evaluate_one(dataset, pred_path):
         "median_rotation_error_deg": float(np.median(rot_errors)),
         "mean_final_candidates": float(np.mean(nms_counts)),
     }
+    metrics.update({
+        "num_views": float(metadata.get("num_views", len(dataset["scenes"][0]["views"]))),
+        "uses_depth_sensor": float(bool(metadata.get("uses_depth_sensor", False))),
+        "object_specific_training": float(bool(metadata.get("object_specific_training", False))),
+        "uses_dinov2_features": float(bool(metadata.get("uses_dinov2_features", False))),
+    })
+    return metrics
 
 
 def main():
