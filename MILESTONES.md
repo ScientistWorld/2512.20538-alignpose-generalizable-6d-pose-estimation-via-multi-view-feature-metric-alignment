@@ -20,4 +20,4 @@
 - The score artifact includes the core constraints: four calibrated RGB views, no depth sensor, no object-specific training, frozen DINOv2 features, and duplicate suppression.
 
 ## Stop Justification
-- Stopping at `core_claim`: the audited implementation now runs end to end and supports the central claim on the executable reduced benchmark. Higher milestones would require full BOP candidate archives or adding new paper-faithful public benchmark coverage beyond the current resource package.
+- Completed at milestone `core_claim`.
