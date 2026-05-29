@@ -1,0 +1,116 @@
+{
+  "paper": {
+    "arxiv_id": "2512.20538",
+    "title": "AlignPose: Generalizable 6D Pose Estimation via Multi-view Feature-metric Alignment",
+    "date": null,
+    "topics": null
+  },
+  "reproduction": {
+    "milestone": "core_claim",
+    "status": "done",
+    "error": null,
+    "scaffold": "codex",
+    "model": "gpt-5.5",
+    "profile": "gpt-5.5-medium",
+    "effort": "medium",
+    "gpu_hours_used": 0.0,
+    "current_iteration_gpu_budget": 30,
+    "current_iteration_gpu_hours_used": 0.0,
+    "total_gpu_hours_used": 0.0,
+    "current_iteration_cpu_hours_used": 0.011,
+    "total_cpu_hours_used": 0.011,
+    "gpu_budget": 30,
+    "duration_sec": 638.4,
+    "cost_usd": null,
+    "input_tokens": 3866527,
+    "output_tokens": 24528,
+    "cached_input_tokens": 3614208,
+    "cache_creation_tokens": null,
+    "reasoning_tokens": 0,
+    "total_input_tokens": 3866527,
+    "num_turns": 52,
+    "duration_api_ms": null,
+    "num_runs": 1,
+    "iteration_count": 0,
+    "workflow": "standard",
+    "workflow_step": 0,
+    "total_gpu_jobs": 1,
+    "time_breakdown": {
+      "working": 504.2504117488861,
+      "building": 0.11838603019714355,
+      "installing": 1.9518113136291504,
+      "waiting": 43.286598920822144
+    }
+  },
+  "agents": [
+    {
+      "scaffold": "codex",
+      "model": "gpt-5.5",
+      "profile": "gpt-5.5-medium",
+      "effort": "medium",
+      "role": "reproducer",
+      "is_iteration": false,
+      "iteration": 1,
+      "workflow": "standard",
+      "workflow_step": 0,
+      "started_at": 1780023777.782517,
+      "finished_at": 1780024416.1641314,
+      "duration_sec": 638.4,
+      "blocked_sec": 0.0,
+      "status": "done",
+      "error": null,
+      "milestone": "core_claim",
+      "gpu_budget": 30,
+      "gpu_hours_used": 0.0,
+      "total_gpu_hours_used": 0.0,
+      "cpu_hours_used": 0.011,
+      "time_breakdown": {
+        "working": 504.2504117488861,
+        "building": 0.11838603019714355,
+        "installing": 1.9518113136291504,
+        "waiting": 43.286598920822144
+      },
+      "cost_usd": null,
+      "input_tokens": 3866527,
+      "output_tokens": 24528,
+      "cached_input_tokens": 3614208,
+      "cache_creation_tokens": null,
+      "reasoning_tokens": 0,
+      "total_input_tokens": 3866527,
+      "num_turns": 52,
+      "duration_api_ms": null,
+      "tool_uses": {
+        "shell": 42,
+        "file_edit": 10
+      },
+      "gpu_jobs": [
+        {
+          "run_id": "90d08839-921",
+          "command": "bash /home/user/scripts/run.sh",
+          "num_gpus": 0,
+          "num_cpus": 1,
+          "resource": "gpu-cpu-test",
+          "hive_job_id": "fc52f881",
+          "status": "completed",
+          "returncode": 0,
+          "duration_sec": 40.5,
+          "submitted_at": 1780024290.6386087,
+          "started_at": 1780024292.352488,
+          "completed_at": 1780024332.8791883
+        }
+      ],
+      "progress_log": "### [2026-05-29 03:07] - none\n- Initialized method-agnostic documentation and scoring scaffold for AlignPose.\n\n### [2026-05-29 03:12] - method_runs\n- Implemented a reduced AlignPose pipeline with world-frame candidate aggregation, 3D NMS, multi-view feature-metric SE(3) refinement, and final NMS.\n- Ran the end-to-end reproduction locally on the 12-scene synthetic benchmark; scheduler job is being submitted to verify the packaged environment.\n\n### [2026-05-29 03:18] - core_claim\n- Scheduler job `90d08839-921` completed successfully in the compute container with exit code 0.\n- Verified the core claim on the reduced benchmark: AlignPose improved AR from 47.22 to 88.89 and AP from 50.00 to 91.67 over the single-view candidate baseline.\n- Verified the duplicate-suppression constraint: final candidate count decreased from 12.0 to 1.0 after NMS/refinement."
+    }
+  ],
+  "components": {
+    "has_container": true,
+    "has_method_code": true,
+    "has_evaluation": true,
+    "has_download_script": true,
+    "has_reproduce_script": true,
+    "has_method_script": true,
+    "has_baseline": true,
+    "has_reference": true,
+    "has_data": true
+  }
+}

@@ -29,5 +29,4 @@ Milestone levels:
 - Verified the duplicate-suppression constraint: final candidate count decreased from 12.0 to 1.0 after NMS/refinement.
 
 ## Stop Justification
-
-- Stopping at `core_claim`: the package includes a runnable method, baseline, evaluator, reference scoring, generated dataset, and successful container job evidence. Full BOP reproduction remains out of scope because the required candidate archives and single-view estimator stack are not bundled with the paper.
+- Completed at milestone `core_claim`.

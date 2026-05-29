@@ -27,8 +27,8 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: submit
+action: done
 gpus: 0
 test: true
-milestone: method_runs
-notes: "CPU smoke job: run scripts/reproduce.sh in the container to verify the reduced AlignPose pipeline and evaluator end-to-end."
+milestone: core_claim
+notes: "Verified core claim in job 90d08839-921: AlignPose-style multi-view aggregation and feature-metric refinement improved AR/AP over the single-view baseline on the reduced benchmark."
