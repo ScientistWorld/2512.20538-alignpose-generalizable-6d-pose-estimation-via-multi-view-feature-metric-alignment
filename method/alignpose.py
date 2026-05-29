@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from method.geometry import add_error, compose, pose_from_json, pose_to_json, project, se3_left_update, transform
+from method.geometry import compose, pose_from_json, pose_to_json, project, se3_left_update, transform
 
 
 def load_dataset(path):
@@ -174,8 +174,7 @@ def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90):
             pose, loss = lm_refine(cand["pose"], reps, intrinsics, max_iters=30)
             refined.append({"pose": pose, "score": 1.0 - loss, "feature_loss": loss, "source_view": cand["source_view"]})
         refined = nms(refined, model_points, threshold=0.4)
-        gt = pose_from_json(scene["T_WO_gt"])
-        best = min(refined, key=lambda c: add_error(model_points, c["pose"], gt))
+        best = max(refined, key=lambda c: c["score"])
         results["predictions"].append({
             "scene_id": scene["scene_id"],
             "T_WO": pose_to_json(best["pose"]),
