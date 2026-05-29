@@ -1,0 +1,24 @@
+{
+  "experiments": {
+    "tless_coop_ablation": {
+      "results": {
+        "single_view_candidate": {
+          "AR": 47.22222222222223,
+          "AP": 50.0,
+          "mean_add_error": 0.08204836882242184,
+          "median_translation_error": 0.04871599688115404,
+          "median_rotation_error_deg": 12.678542285977315,
+          "mean_final_candidates": 12.0
+        },
+        "alignpose": {
+          "AR": 88.88888888888889,
+          "AP": 91.66666666666666,
+          "mean_add_error": 0.03387631824387013,
+          "median_translation_error": 0.021401964274730793,
+          "median_rotation_error_deg": 5.706876738989871,
+          "mean_final_candidates": 1.0
+        }
+      }
+    }
+  }
+}

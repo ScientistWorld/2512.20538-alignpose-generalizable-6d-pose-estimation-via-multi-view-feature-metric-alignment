@@ -12,8 +12,8 @@ Check off items as you complete them. Order does not matter.
 ## Scoring
 
 - [x] `scoring/reference.json` - paper's reported numbers
-- [ ] Workspace validated via `python validate.py`
-- [ ] `scoring/scores.json` - reproduced numbers matching `reference.json` structure
+- [x] Workspace validated via `python validate.py`
+- [x] `scoring/scores.json` - reproduced numbers matching `reference.json` structure
 - [x] `scoring/EXPERIMENTS.md` - high-level purpose of each reference experiment
 - [x] `scoring/TARGETS.md` - primary, constraint, and ablation targets
 - [x] `scoring/CONSTRAINTS.md` - what a scientist must hold fixed
@@ -21,29 +21,29 @@ Check off items as you complete them. Order does not matter.
 
 ## Code
 
-- [ ] Evaluation code in `eval/`
-- [ ] Method implementation in `method/`
-- [ ] Baseline implementation in `baseline/` (if applicable)
+- [x] Evaluation code in `eval/`
+- [x] Method implementation in `method/`
+- [x] Baseline implementation in `baseline/` (if applicable)
 
 ## Scripts
 
-- [ ] `scripts/evaluate.sh`
-- [ ] `scripts/reproduce.sh`
-- [ ] `scripts/download.sh` (idempotent, size comment at top)
-- [ ] `scripts/baseline.sh` (if applicable)
+- [x] `scripts/evaluate.sh`
+- [x] `scripts/reproduce.sh`
+- [x] `scripts/download.sh` (idempotent, size comment at top)
+- [x] `scripts/baseline.sh` (if applicable)
 
 ## Environment
 
-- [ ] `environment/container.def` + `environment/setup.sh`
+- [x] `environment/container.def` + `environment/setup.sh`
 
 ## Data
 
-- [ ] Dataset acquired (shared dir or `data/`)
-- [ ] Pretrained models downloaded if needed
+- [x] Dataset acquired (shared dir or `data/`)
+- [x] Pretrained models downloaded if needed
 
 ## Milestones
 
-- [ ] `method_runs` - executes end-to-end without errors
+- [x] `method_runs` - executes end-to-end without errors
 - [ ] `core_claim` - minimum experiment supports central claim
 - [ ] `core_claim_plus` - additional settings
 - [ ] `secondary_claims`

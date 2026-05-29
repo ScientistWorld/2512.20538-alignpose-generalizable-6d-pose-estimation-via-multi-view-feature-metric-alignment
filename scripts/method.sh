@@ -1,14 +1,11 @@
 #!/bin/bash
-# Run the paper's proposed method.
-#
-# This script trains/runs the paper's method using code in method/.
-#
-# Usage:
-#   bash scripts/method.sh
+# Run the AlignPose-style multi-view aggregation and feature-metric refinement.
 
-set -e
+set -euo pipefail
 
-cd /home/user
+cd "$(dirname "$0")/.."
+mkdir -p outputs
 
-# TODO: run the paper's method
-# TODO: call scripts/evaluate.sh to score
+python -m method.alignpose \
+  --dataset data/synthetic_benchmark.json \
+  --output outputs/alignpose_predictions.json

@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: none**
+**Current: method_runs**
 
 Milestone levels:
 
@@ -16,8 +16,13 @@ Milestone levels:
 
 ## Progress Log
 
+### [2026-05-29 03:07] - none
 - Initialized method-agnostic documentation and scoring scaffold for AlignPose.
+
+### [2026-05-29 03:12] - method_runs
+- Implemented a reduced AlignPose pipeline with world-frame candidate aggregation, 3D NMS, multi-view feature-metric SE(3) refinement, and final NMS.
+- Ran the end-to-end reproduction locally on the 12-scene synthetic benchmark; scheduler job is being submitted to verify the packaged environment.
 
 ## Stop Justification
 
-- Completed this documentation-only turn at milestone `none`.
+- Not stopping. The next job verifies whether the reproduced results support `core_claim`.
