@@ -4,4 +4,5 @@
 set -euo pipefail
 
 cd /home/user
-./scripts/reproduce.sh
+./scripts/evaluate_train.sh
+./scripts/evaluate_test.sh
