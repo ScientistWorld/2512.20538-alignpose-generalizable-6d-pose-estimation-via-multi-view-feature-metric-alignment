@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 ## Progress Log
 
@@ -40,5 +40,10 @@
 - Added an offline scheduler preflight so compute jobs verify cached DINOv2 files without attempting network access.
 - Submitting a CPU verification job before restoring the `core_claim` milestone for this patched method path.
 
+### [2026-05-29 04:40] - core_claim
+- CPU verification job `0068b751-1e0` completed successfully with exit code 0 after one scheduler preemption and restart.
+- The job regenerated baseline predictions, AlignPose predictions, canonical scores, train scores, and test scores from the current camera-frame candidate interface.
+- Final canonical scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00, with exact pose copy rate 0.0 and no depth or object-specific training.
+
 ## Stop Justification
-- Not stopped; CPU verification is pending for the camera-frame candidate interface.
+- Stopping at `core_claim`: the current reduced benchmark is verified end-to-end and packaged as a reusable gym. Higher milestones would require full BOP data/candidate coverage beyond the current resource scope.

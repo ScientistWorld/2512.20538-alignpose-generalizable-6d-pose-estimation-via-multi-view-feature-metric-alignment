@@ -3,19 +3,18 @@
 ## Initial Assessment
 
 The workspace had a working reduced AlignPose reproduction and a prior
-`core_claim` result, but the current HEAD has changed since the last successful
-CPU verification job. The latest completed job, `b00a7706-137`, regenerated
-baseline outputs, method outputs, canonical scores, and train/test scores
-through the older scheduler path. A later patch tightened the method-visible
+`core_claim` result, but the current HEAD had changed since the previous
+successful CPU verification job. A later patch tightened the method-visible
 candidate interface from world-frame poses to camera-frame poses and changed
-`scripts/run.sh`; the existing score artifacts predate those source files.
+`scripts/run.sh`, so stale artifacts had to be regenerated before final
+sign-off.
 
 ## Issues Found
 
-- **Critical**: Current prediction and score artifacts are stale relative to
+- **Resolved critical**: Prediction and score artifacts were stale relative to
   `method/alignpose.py`, `data/synthetic_inputs.json`, and `scripts/run.sh`.
-  The final `core_claim` sign-off must wait for a CPU verification job that
-  reruns the patched camera-frame candidate path.
+  CPU verification job `0068b751-1e0` reran the patched camera-frame candidate
+  path and refreshed all scoring outputs successfully.
 - **Minor**: The executable benchmark remains a reduced synthetic substitute,
   and the reproduced AP is near the ceiling. The baseline gap is still large
   enough to be useful, but this limits confidence beyond the core claim.
@@ -33,20 +32,21 @@ candidate interface from world-frame poses to camera-frame poses and changed
 - Verified the three DINOv2-S download URLs with `curl -I -L --max-time 15`;
   all resolved to HTTP 200.
 - Removed generated Python cache directories under `eval/`.
-- Left `action.yaml` as a CPU test submission so the scheduler can regenerate
-  all prediction and score artifacts for the current HEAD.
+- Reviewed CPU verification job `0068b751-1e0`; it exited with code 0 after a
+  scheduler preemption and restart, regenerated canonical/train/test scores,
+  and left score artifacts newer than the patched source files.
+- Re-ran `python validate.py --compare`; validation and structural gym checks
+  pass.
 
 ## Final Judgment
 
-The workspace is structurally close to ready, but it should not be finalized as
-`core_claim` until the pending CPU verification job completes on the current
-camera-frame candidate interface. The evaluation code is separated from the
-method, download scripts are self-contained and free of committed `shared/`
-paths, and the stale score files still pass `python validate.py --compare`; the
-remaining requirement is to refresh those artifacts from current source.
+The workspace is ready to serve as a research gym at `core_claim`. The current
+artifacts were regenerated from the patched method-visible camera-frame
+candidate interface, evaluation code is separated from the method, download
+scripts are self-contained and free of committed `shared/` paths, and
+`python validate.py --compare` passes.
 
-- Milestone: method_runs
-- Ready for gym use: partial
+- Milestone: core_claim
+- Ready for gym use: yes
 - Confidence: medium
-- Key limitation: current scores are stale relative to the latest method/data
-  interface patch
+- Key limitation: synthetic reduced benchmark only
