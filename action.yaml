@@ -27,8 +27,8 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: pending
-gpus: 1
-test: false
-milestone: none
-notes: ""
+action: submit
+gpus: 0
+test: true
+milestone: method_runs
+notes: "CPU smoke job: run scripts/reproduce.sh in the container to verify the reduced AlignPose pipeline and evaluator end-to-end."
