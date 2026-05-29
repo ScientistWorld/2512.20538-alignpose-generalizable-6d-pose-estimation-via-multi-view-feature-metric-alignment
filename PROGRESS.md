@@ -20,7 +20,9 @@ Higher milestones would require adding more real BOP coverage, downloading publi
 
 The exact BOP candidate archives and full single-view estimator stack are not bundled with the paper, so the runnable target uses generated data. The compute job verified the container dependency path and end-to-end scripts.
 
-Continuing audit on 2026-05-29 found that `method/alignpose.py` selected the final refined candidate with ground-truth ADD error. This was label leakage in the method artifact generation. The selection has been changed to use the method's own feature-alignment confidence score after final NMS; the scores must be regenerated before restoring `core_claim`.
+Continuing audit on 2026-05-29 found that `method/alignpose.py` selected the final refined candidate with ground-truth ADD error. This was label leakage in the method artifact generation. The selection was changed to use the method's own feature-alignment confidence score after final NMS.
+
+CPU test job `cba204d5-f6f` reran `scripts/reproduce.sh` after the fix and completed successfully. The regenerated scores were unchanged: the single-view baseline reached AR 47.22 and AP 50.00, while AlignPose reached AR 88.89 and AP 91.67. The `core_claim` milestone is therefore restored with label-free method outputs.
 
 ## Deviations from Paper
 

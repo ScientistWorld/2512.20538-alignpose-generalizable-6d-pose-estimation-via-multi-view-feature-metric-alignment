@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: submit
+action: done
 gpus: 0
-test: true
-milestone: method_runs
-notes: "CPU test reruns scripts/reproduce.sh after fixing label leakage in AlignPose final candidate selection. Expected outcome: regenerate predictions and scores without using ground truth in method outputs."
+test: false
+milestone: core_claim
+notes: "Post-audit CPU job cba204d5-f6f reran the full reproduction after fixing final-selection label leakage. Core claim is restored with method-selected predictions and validated scores."

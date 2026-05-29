@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 ## Progress Log
 
@@ -17,5 +17,10 @@
 - Continuing audit found that the previous prediction writer selected the final refined hypothesis using ground-truth ADD error. This leaked evaluation labels into method outputs.
 - Replaced final hypothesis selection with the method's own feature-alignment confidence score after final NMS. The stale `core_claim` result now requires a fresh container run before being restored.
 
+### [2026-05-29 04:16] - core_claim
+- CPU test job `cba204d5-f6f` reran `scripts/reproduce.sh` successfully after the leakage fix.
+- The regenerated artifact-based scores remained: single-view candidate AR 47.22 / AP 50.00, AlignPose AR 88.89 / AP 91.67.
+- This restores `core_claim` with predictions selected only by method confidence, not ground-truth pose error.
+
 ## Stop Justification
-- Not stopped. A CPU test job is being submitted to regenerate predictions and scores after fixing the label leakage.
+- Completed at milestone `core_claim`. The runnable benchmark now has a post-audit method implementation, baseline, independent evaluator, reproducible scripts, validated scores, and documentation.
