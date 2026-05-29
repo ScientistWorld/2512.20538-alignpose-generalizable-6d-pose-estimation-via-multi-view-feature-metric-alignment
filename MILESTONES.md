@@ -23,4 +23,4 @@
 - This restores `core_claim` with predictions selected only by method confidence, not ground-truth pose error.
 
 ## Stop Justification
-- Completed at milestone `core_claim`. The runnable benchmark now has a post-audit method implementation, baseline, independent evaluator, reproducible scripts, validated scores, and documentation.
+- Completed at milestone `core_claim`.
