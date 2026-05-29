@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 ## Progress Log
 
@@ -14,5 +14,10 @@
 - Replaced `AutoImageProcessor` with direct local preprocessing from `preprocessor_config.json`, keeping offline DINOv2-S features and avoiding the missing dependency.
 - Resubmitting the revised end-to-end reproduction job.
 
+### [2026-05-29 03:35] - core_claim
+- CPU test job `926ce860-7c2` completed successfully with the revised DINOv2-S query/render feature pipeline.
+- On the 12-scene reduced benchmark, AlignPose improved over the single-view candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00.
+- The score artifact includes the core constraints: four calibrated RGB views, no depth sensor, no object-specific training, frozen DINOv2 features, and duplicate suppression.
+
 ## Stop Justification
-- Not stopped. Current revised implementation is pending scheduler validation.
+- Stopping at `core_claim`: the audited implementation now runs end to end and supports the central claim on the executable reduced benchmark. Higher milestones would require full BOP candidate archives or adding new paper-faithful public benchmark coverage beyond the current resource package.

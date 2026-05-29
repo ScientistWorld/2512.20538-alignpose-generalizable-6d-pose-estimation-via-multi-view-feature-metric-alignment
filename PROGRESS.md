@@ -8,7 +8,7 @@ The method code implements the core AlignPose computation at reduced scale: cand
 
 ## Results
 
-Scheduler job `90d08839-921` completed successfully with exit code 0 and reproduced the scores in `scoring/scores.json`. On the 12-scene synthetic benchmark, the single-view baseline reached AR 47.22 and AP 50.00, while the AlignPose reproduction reached AR 88.89 and AP 91.67. Mean ADD error decreased from 0.0820 to 0.0339, median translation error decreased from 0.0487 to 0.0214, median rotation error decreased from 12.68 degrees to 5.71 degrees, and final duplicate candidates decreased from 12.0 to 1.0.
+Scheduler job `926ce860-7c2` completed successfully with exit code 0 and reproduced the revised DINOv2-based scores in `scoring/scores.json`. On the 12-scene synthetic benchmark, the single-view candidate baseline reached AR 47.22 and AP 50.00, while the AlignPose reproduction reached AR 97.22 and AP 100.00. Mean ADD error decreased from 0.0820 to 0.0246, median translation error decreased from 0.0487 to 0.0157, median rotation error decreased from 12.68 degrees to 5.44 degrees, and final duplicate candidates decreased from 12.0 to 1.0.
 
 This supports the paper's central claim on the reduced target: calibrated multi-view aggregation plus feature-metric refinement improves over noisy single-view pose candidates while suppressing duplicate hypotheses.
 
@@ -27,6 +27,8 @@ CPU test job `cba204d5-f6f` reran `scripts/reproduce.sh` after the fix and compl
 Audit on 2026-05-29 found that the feature extraction path was still too reduced: it used handcrafted RGB/gradient descriptors instead of the paper's frozen feature maps extracted from query and rendered object images. The method has been revised to use a local DINOv2-S feature extractor, render coarse-pose RGB-D object views, lift rendered descriptors into object coordinates, and optimize the same multi-view SE(3) feature-metric objective. The scorer now records explicit protocol constraint metrics. A scheduler job is pending to validate the revised pipeline before claiming `core_claim` again.
 
 CPU test job `216bf4fb-60f` failed before method execution because `AutoImageProcessor` required `torchvision`, which was not installed in the container. The method now implements the DINOv2 preprocessing directly from the downloaded `preprocessor_config.json` using PIL resize and torch normalization, avoiding the extra torchvision dependency while keeping the same local DINOv2 model.
+
+CPU test job `926ce860-7c2` reran `scripts/reproduce.sh` after that fix and completed in about 5 minutes. The evaluator passed validation with explicit protocol constraints: the method used four calibrated RGB views, no depth sensor, no object-specific training, and frozen DINOv2 features. This restores the `core_claim` milestone for the audited implementation.
 
 ## Deviations from Paper
 
