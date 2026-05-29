@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: true
 milestone: method_runs
-notes: "CPU verification after tightening the synthetic interface: method-visible candidates are camera-frame T_CO poses, and scripts/run.sh uses offline preflight before regenerating baseline, AlignPose, and all scores."
+notes: "Final verifier found current scores stale after the camera-frame T_CO interface patch; run CPU verification to regenerate baseline, AlignPose, canonical, train, and test scores from current HEAD."
