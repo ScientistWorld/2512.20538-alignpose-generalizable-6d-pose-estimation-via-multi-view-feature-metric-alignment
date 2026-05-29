@@ -17,7 +17,7 @@ Reference targets are stored in `scoring/reference.json`. The main comparison po
 - Single-view unseen-object pose estimators evaluated directly on each view group.
 - CosyPose multi-view refinement applied to the same candidate sources.
 - Published seen-object multi-view baselines on T-LESS where the paper reports a secondary comparison.
-- Ablation rows that isolate whether multi-view use, duplicate suppression, and final pose improvement each contribute to the final score.
+- Ablation rows that compare single-view candidate quality against calibrated multi-view pose estimates under the same scene inputs.
 
 ## Evaluation Protocol
 

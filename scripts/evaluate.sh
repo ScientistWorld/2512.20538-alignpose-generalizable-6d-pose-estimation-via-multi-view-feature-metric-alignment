@@ -8,6 +8,5 @@ cd "$(dirname "$0")/.."
 
 python -m eval.pose_metrics \
   --dataset data/synthetic_benchmark.json \
-  --baseline outputs/baseline_predictions.json \
-  --method outputs/alignpose_predictions.json \
+  --outputs-dir outputs \
   --output scoring/scores.json

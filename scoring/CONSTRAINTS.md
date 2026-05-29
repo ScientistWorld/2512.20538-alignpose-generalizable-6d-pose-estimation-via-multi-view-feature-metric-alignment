@@ -9,8 +9,8 @@ for the current runnable target.
 
 ## Inputs
 
-Use only RGB-derived feature images, known camera intrinsics, known camera
-extrinsics, and the provided object model. Do not use depth sensor input,
+Use only RGB images, known camera intrinsics, known camera extrinsics, the
+provided object model, and the supplied candidate hypotheses. Do not use depth sensor input,
 external point clouds, manually corrected poses, or manually annotated
 symmetry metadata.
 

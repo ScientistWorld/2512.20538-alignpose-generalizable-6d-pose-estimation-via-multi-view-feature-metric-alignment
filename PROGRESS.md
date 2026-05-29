@@ -34,6 +34,8 @@ Follow-up packaging audit on 2026-05-29 found two issues in the final handoff: `
 
 A CPU test job is being submitted to validate these packaging fixes in the container before restoring the final `core_claim` completion signal.
 
+Final verification found that the completed CPU job logs corresponded to the older scheduler script and did not refresh canonical `scoring/scores.json`. `scripts/evaluate.sh` has also been updated to discover arbitrary `outputs/*_predictions.json` artifacts instead of hardcoding only the reproduced baseline and method. A new CPU test job is being submitted to regenerate all scoring files from the patched interface.
+
 ## Deviations from Paper
 
 The full paper uses BOP datasets, DINOv2-L layer 18 features with PCA, RGB-D rendering for registered feature lifting, and BOP AR/AP metrics. This workspace currently uses a deterministic synthetic benchmark and DINOv2-S layer 9 features without PCA so the core multi-view aggregation plus feature-metric SE(3) refinement can run within the available environment. The algorithmic stages are preserved; the dataset scale and backbone size are reduced.

@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: true
 milestone: method_runs
-notes: "CPU packaging regression test: regenerate baseline and AlignPose outputs from label-stripped method inputs, then run canonical plus train/test evaluation after scoring integrity fixes."
+notes: "Final verification CPU test: rerun patched scheduler script, regenerate baseline/method artifacts, and refresh canonical plus train/test scores through the reusable evaluator."

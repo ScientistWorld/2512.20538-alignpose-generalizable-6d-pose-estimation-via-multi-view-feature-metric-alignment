@@ -24,5 +24,10 @@
 - Updated scheduler execution to regenerate baseline and AlignPose predictions before all scoring steps.
 - Split method-visible synthetic inputs from evaluation labels by adding `data/synthetic_inputs.json`; submitting a CPU test job before restoring `core_claim`.
 
+### [2026-05-29 04:08] - method_runs
+- Final verification found that the last completed CPU job predated the patched scheduler script, so canonical `scores.json` remained stale.
+- Updated `scripts/evaluate.sh` to discover all prediction artifacts through the reusable evaluator interface.
+- Submitting a CPU test job to regenerate method outputs and all score files before final `core_claim` sign-off.
+
 ## Stop Justification
 - Active: validating packaging fixes before final completion.
