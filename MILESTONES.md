@@ -46,4 +46,4 @@
 - Final canonical scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00, with exact pose copy rate 0.0 and no depth or object-specific training.
 
 ## Stop Justification
-- Stopping at `core_claim`: the current reduced benchmark is verified end-to-end and packaged as a reusable gym. Higher milestones would require full BOP data/candidate coverage beyond the current resource scope.
+- Completed at milestone `core_claim`.
