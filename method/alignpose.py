@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-from method.geometry import compose, pose_from_json, pose_to_json, project, se3_left_update, transform
+from method.geometry import compose, invert, pose_from_json, pose_to_json, project, se3_left_update, transform
 
 
 class DinoPatchFeatures:
@@ -207,6 +207,12 @@ def nms(candidates, model_points, threshold=0.4):
     return kept
 
 
+def candidate_world_pose(candidate, view_pose):
+    if "T_CO" in candidate:
+        return compose(invert(view_pose), pose_from_json(candidate["T_CO"]))
+    return pose_from_json(candidate["T_WO"])
+
+
 def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90, model_dir="data/downloads/dinov2-small", feature_layer=9):
     data, model_points, model_features = load_dataset(dataset_path)
     intrinsics = data["intrinsics"]
@@ -230,8 +236,13 @@ def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90, mod
     for scene in scenes:
         candidates = []
         for view in scene["views"]:
+            t_cw = pose_from_json(view["T_CW"])
             for cand in view["candidates"]:
-                candidates.append({"pose": pose_from_json(cand["T_WO"]), "score": float(cand["score"]), "source_view": cand["view_id"]})
+                candidates.append({
+                    "pose": candidate_world_pose(cand, t_cw),
+                    "score": float(cand["score"]),
+                    "source_view": cand["view_id"],
+                })
         aggregated = nms(candidates, model_points, threshold=0.4)
         query_maps = {view_i: backbone(view["image"]) for view_i, view in enumerate(scene["views"])}
         refined = []

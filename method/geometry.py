@@ -30,6 +30,11 @@ def compose(a, b):
     return {"R": a["R"] @ b["R"], "t": a["R"] @ b["t"] + a["t"]}
 
 
+def invert(pose):
+    r_inv = pose["R"].T
+    return {"R": r_inv, "t": -(r_inv @ pose["t"])}
+
+
 def transform(points, pose):
     return points @ pose["R"].T + pose["t"][None, :]
 

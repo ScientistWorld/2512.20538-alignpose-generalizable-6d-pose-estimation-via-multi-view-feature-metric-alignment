@@ -6,6 +6,31 @@ import argparse
 import json
 from pathlib import Path
 
+import numpy as np
+
+
+def pose_from_json(raw):
+    return {"R": np.asarray(raw["R"], dtype=float), "t": np.asarray(raw["t"], dtype=float)}
+
+
+def pose_to_json(pose):
+    return {"R": pose["R"].tolist(), "t": pose["t"].tolist()}
+
+
+def compose(a, b):
+    return {"R": a["R"] @ b["R"], "t": a["R"] @ b["t"] + a["t"]}
+
+
+def invert(pose):
+    r_inv = pose["R"].T
+    return {"R": r_inv, "t": -(r_inv @ pose["t"])}
+
+
+def candidate_world_pose(candidate, view_pose):
+    if "T_CO" in candidate:
+        return compose(invert(view_pose), pose_from_json(candidate["T_CO"]))
+    return pose_from_json(candidate["T_WO"])
+
 
 def run_baseline(dataset_path, output_path, max_scenes=None):
     data = json.loads(Path(dataset_path).read_text())
@@ -24,7 +49,11 @@ def run_baseline(dataset_path, output_path, max_scenes=None):
     for scene in scenes:
         candidates = []
         for view in scene["views"]:
-            candidates.extend(view["candidates"])
+            t_cw = pose_from_json(view["T_CW"])
+            for candidate in view["candidates"]:
+                converted = dict(candidate)
+                converted["T_WO"] = pose_to_json(candidate_world_pose(candidate, t_cw))
+                candidates.append(converted)
         best = max(candidates, key=lambda c: c["score"])
         out["predictions"].append({
             "scene_id": scene["scene_id"],

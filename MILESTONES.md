@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: core_claim**
+**Current: method_runs**
 
 ## Progress Log
 
@@ -34,5 +34,11 @@
 - `scripts/run.sh` regenerated baseline and AlignPose prediction artifacts, then refreshed canonical, train, and test score files.
 - Final scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00 with no ground-truth pose copying.
 
+### [2026-05-29 04:30] - method_runs
+- Tightened the synthetic interface so method-visible candidates are camera-frame `T_CO` poses, matching the paper's per-view input contract.
+- Updated AlignPose and the single-view baseline to transform candidates through known camera extrinsics before world-frame aggregation and scoring.
+- Added an offline scheduler preflight so compute jobs verify cached DINOv2 files without attempting network access.
+- Submitting a CPU verification job before restoring the `core_claim` milestone for this patched method path.
+
 ## Stop Justification
-- Completed at milestone `core_claim`.
+- Not stopped; CPU verification is pending for the camera-frame candidate interface.

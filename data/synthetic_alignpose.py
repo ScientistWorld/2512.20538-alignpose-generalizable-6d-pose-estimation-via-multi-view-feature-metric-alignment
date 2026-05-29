@@ -170,6 +170,7 @@ def generate_dataset(output, n_scenes=24, n_views=4, seed=251220538):
                 noisy = _perturb_pose(t_co, rng, rot_sigma=0.12 + 0.06 * hyp, trans_sigma=0.035 + 0.015 * hyp)
                 world = _compose(_invert(t_cw_pose), noisy)
                 candidates.append({
+                    "T_CO": noisy,
                     "T_WO": world,
                     "score": max(0.05, 1.0 - 0.22 * hyp + rng.gauss(0, 0.04)),
                     "view_id": vid,

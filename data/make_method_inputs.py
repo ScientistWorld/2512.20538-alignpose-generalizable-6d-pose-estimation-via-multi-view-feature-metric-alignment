@@ -11,6 +11,9 @@ def strip_labels(source_path: Path, output_path: Path) -> None:
     payload = json.loads(source_path.read_text())
     for scene in payload.get("scenes", []):
         scene.pop("T_WO_gt", None)
+        for view in scene.get("views", []):
+            for candidate in view.get("candidates", []):
+                candidate.pop("T_WO", None)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload))
 

@@ -4,6 +4,7 @@
 set -euo pipefail
 
 cd /home/user
+./scripts/download.sh --offline
 ./scripts/baseline.sh
 ./scripts/method.sh
 ./scripts/evaluate.sh

@@ -38,6 +38,8 @@ Final verification found that the completed CPU job logs corresponded to the old
 
 CPU verification job `b00a7706-137` completed successfully. It regenerated method artifacts through `scripts/run.sh` and refreshed `scoring/scores.json`, `scoring/scores_train.json`, and `scoring/scores_test.json`. `python validate.py --compare` passes. Canonical scores now include the integrity metrics: complete prediction rate, candidate ADD gain, and exact pose copy rate.
 
+Follow-up fidelity audit found that method-visible synthetic candidates were already stored in world coordinates, so the reproduced aggregation did not exercise the paper's camera-frame candidate conversion step. The generator now stores camera-frame `T_CO` candidates, `data/make_method_inputs.py` strips candidate `T_WO` values from method-visible inputs, and both AlignPose and the baseline explicitly compute `T_WO = T_WC T_CO` from calibrated extrinsics. `scripts/run.sh` now uses an offline preflight that verifies cached DINOv2 files and regenerates small JSON inputs without attempting network access on compute nodes. A CPU verification job is pending before restoring the `core_claim` claim for this patched interface.
+
 ## Deviations from Paper
 
 The full paper uses BOP datasets, DINOv2-L layer 18 features with PCA, RGB-D rendering for registered feature lifting, and BOP AR/AP metrics. This workspace currently uses a deterministic synthetic benchmark and DINOv2-S layer 9 features without PCA so the core multi-view aggregation plus feature-metric SE(3) refinement can run within the available environment. The algorithmic stages are preserved; the dataset scale and backbone size are reduced.
