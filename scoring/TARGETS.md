@@ -1,50 +1,29 @@
 # Evaluation Targets
 
-<!-- Do not edit this unless you decide to stop -->
+## Primary: unseen_multiview_pose
 
-<!--
-Describe what a scientist could optimize and how to measure it.
+Tests overall 6D pose localization and detection on unseen-object multi-view scenes across YCB-V, T-LESS, ITODD-MV, and HouseCat6D.
+- **Metrics**: `ar`, `ap` (higher is better)
+- **Constraint metrics**: `object_specific_training` and `symmetry_annotations_required` (lower is better)
+- **How to run evaluation**: run the BOP-style multi-view evaluation on the same dataset/view-group settings and candidate-source conditions represented in `reference.json`.
 
-If a paper claims "we get X without sacrificing Y." Your targets must
-capture BOTH sides. Without constraint targets, a scientist can trivially
-"improve" by breaking the property the paper was designed to satisfy.
+## Constraint: challenging_housecat6d_materials
 
-Three kinds of targets:
+Tests whether performance holds on the difficult HouseCat6D material subsets: transparent glass and metallic cutlery.
+- **Metrics**: `ar`, `ap` (higher is better)
+- **Constraint metrics**: `object_specific_training` and `rgb_only` (object-specific training lower is better; RGB-only higher is better)
+- **How to run evaluation**: filter HouseCat6D results to the glass and metallic category groups and compute the same AR/AP metrics.
 
-  PRIMARY    — the main thing the paper optimizes (accuracy, PSNR, etc.)
-  CONSTRAINT — what the paper must maintain (security, fairness, param count,
-               baseline comparison). Constraint metrics guard against cheating:
-               a scientist who ignores the constraint should score WORSE.
-  ABLATION   — what breaks when the key idea is removed (wrong-key test,
-               no-module test). Proves the method actually does something. 
-               This can be ignored if truly not important.
+## Constraint: seen_tless_pose
 
-For each target, write:
-- What the experiment tests (one sentence)
-- The primary metric and direction (higher/lower is better)
-- How to run evaluation
+Tests whether the method remains competitive on a seen-object T-LESS setting while preserving a fixed four-view RGB evaluation setup.
+- **Metrics**: `ar`, `ap` (higher is better)
+- **Constraint metrics**: `num_views` and `rgb_only` (num_views should remain fixed; RGB-only higher is better)
+- **How to run evaluation**: evaluate on the T-LESS seen-object comparison setting with the same view count and reported baseline rows.
 
-Every target here MUST appear in both reference.json and scores.json.
-Do not list targets you cannot measure — phantom targets are worse than
-missing targets.
+## Ablation: component_contribution
 
-Example for a steganography paper:
-
-## Primary: reconstruction_quality
-Cover and hidden scene PSNR on Blender Synthetic.
-- **Metric**: psnr (higher is better)
-
-## Constraint: key_security
-Wrong-key rendering must produce incoherent output.
-- **Metric**: wrong_key_psnr (lower is better — high means security is broken)
-
-## Ablation: vs_standalone_baseline
-Cover quality should match standalone model (no hidden scene embedded).
-- **Metric**: psnr_gap (lower is better — large gap means hiding costs quality)
-
-Delete this comment block and fill in your actual targets below.
--->
-
-<!-- This is high-level. IT IS ABOUT CONCEPT, NOT NUMBERS. DO NOT INCLUDE ANY ACTUAL VALUES FROM THE PAPER OR YOUR EXPERIMENTS HERE. -->
-
-<!-- This should EXACTLY corresponds to the structure in your scores.json. -->
+Tests whether using the full multi-view pose-estimation pipeline improves over partial system variants under the same YCB-V and T-LESS ablation setting.
+- **Metrics**: `ar`, `ap` (higher is better)
+- **Constraint metrics**: `num_views` (fixed by row)
+- **How to run evaluation**: run each ablation condition on the same scenes and report AR/AP with the same candidate source.

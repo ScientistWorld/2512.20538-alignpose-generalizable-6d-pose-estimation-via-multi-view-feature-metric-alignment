@@ -2,36 +2,20 @@
 
 ## What Works
 
-<!-- What has been successfully reproduced so far. -->
+Documentation and scoring scaffolding have been initialized for the AlignPose reproduction. The briefing files now define the problem, evaluation protocol, paper method summary, and reported result context. The scoring files now define method-agnostic targets, experiment purposes, scientist constraints, research direction, and reference paper numbers.
 
 ## Results
 
-<!-- Reproduced numbers compared to the paper's reported numbers. -->
+No reproduced scores are available yet. `scoring/reference.json` records the paper's reported AR/AP targets and selected constraint fields for later comparison.
 
 ## Remaining
 
-<!-- What still needs to be done to reach higher milestones. -->
+Implementation, data acquisition, environment setup, job scripts, baselines, and reproduced `scoring/scores.json` still need to be completed by the method/evaluation owners.
 
 ## Issues
 
-<!-- Blockers, bugs, or difficulties encountered. -->
+None encountered for the documentation/scoring scaffold. Some reference rows are unavailable in the paper for AP on certain seen-object baselines; those missing AP values are omitted rather than invented.
 
 ## Deviations from Paper
 
-<!-- Do not edit this section unless you deviated from the paper's original setup.
-     For each deviation, document: what the paper used, what you substituted, and why.
-
-     ACCEPTABLE deviations (data/resource/scale substitutions — milestones still valid):
-       - Replaced a proprietary dataset with a public one
-       - Used a smaller model of the same architecture
-       - Scaled down training (fewer epochs, smaller batch)
-       - Used a different library for the same algorithm
-
-     UNACCEPTABLE deviations (algorithm substitutions — milestones above 'none' are void):
-       - Replaced the paper's algorithm with a fundamentally different one
-       - Wrote a generic model trained to approximate the method's outputs
-         instead of implementing the method's computational steps
-
-     The test: could someone reading your code identify which algorithm from
-     the paper you implemented? If not, you replaced the method. -->
-
+No implementation deviations have been introduced. This turn only added documentation and scoring metadata.

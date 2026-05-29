@@ -1,0 +1,112 @@
+{
+  "experiments": {
+    "unseen_multiview_pose": {
+      "description": "Main unseen-object multi-view 6D pose benchmark on YCB-V, T-LESS, ITODD-MV, and HouseCat6D using BOP-style AR/AP.",
+      "weight": 0.45,
+      "primary_metric": "ap",
+      "metrics": {
+        "ar": {"higher_is_better": true, "coefficient": 1.0},
+        "ap": {"higher_is_better": true, "coefficient": 1.0},
+        "object_specific_training": {"higher_is_better": false, "coefficient": -0.2},
+        "symmetry_annotations_required": {"higher_is_better": false, "coefficient": -0.1}
+      },
+      "results": {
+        "ycbv_foundpose": {"type": "baseline", "ar": 69.0, "ap": 63.0, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_foundpose_cosypose_mv": {"type": "baseline", "ar": 79.2, "ap": 76.1, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "ycbv_foundpose_alignpose": {"type": "proposed", "ar": 83.9, "ap": 83.2, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_gigapose": {"type": "baseline", "ar": 66.6, "ap": 63.1, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_gigapose_cosypose_mv": {"type": "baseline", "ar": 76.5, "ap": 70.9, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "ycbv_gigapose_alignpose": {"type": "proposed", "ar": 81.9, "ap": 79.7, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_megapose": {"type": "baseline", "ar": 62.0, "ap": 56.1, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_megapose_cosypose_mv": {"type": "baseline", "ar": 71.1, "ap": 64.5, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "ycbv_megapose_alignpose": {"type": "proposed", "ar": 80.0, "ap": 77.3, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_coop": {"type": "baseline", "ar": 69.7, "ap": 69.5, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "ycbv_coop_cosypose_mv": {"type": "baseline", "ar": 81.0, "ap": 79.2, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "ycbv_coop_alignpose": {"type": "proposed", "ar": 83.8, "ap": 83.3, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_foundpose": {"type": "baseline", "ar": 57.0, "ap": 57.0, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_foundpose_cosypose_mv": {"type": "baseline", "ar": 66.4, "ap": 63.0, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "tless_foundpose_alignpose": {"type": "proposed", "ar": 84.1, "ap": 88.6, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_gigapose": {"type": "baseline", "ar": 58.2, "ap": 54.3, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_gigapose_cosypose_mv": {"type": "baseline", "ar": 61.9, "ap": 55.9, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "tless_gigapose_alignpose": {"type": "proposed", "ar": 81.9, "ap": 84.9, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_megapose": {"type": "baseline", "ar": 50.8, "ap": 50.5, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_megapose_cosypose_mv": {"type": "baseline", "ar": 57.6, "ap": 56.1, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "tless_megapose_alignpose": {"type": "proposed", "ar": 78.8, "ap": 81.4, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_coop": {"type": "baseline", "ar": 68.2, "ap": 68.9, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "tless_coop_cosypose_mv": {"type": "baseline", "ar": 78.7, "ap": 78.9, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "tless_coop_alignpose": {"type": "proposed", "ar": 89.6, "ap": 92.4, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "itodd_mv_foundpose": {"type": "baseline", "ar": 36.9, "ap": 31.8, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "itodd_mv_foundpose_cosypose_mv": {"type": "baseline", "ar": 49.2, "ap": 45.4, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "itodd_mv_foundpose_alignpose": {"type": "proposed", "ar": 68.8, "ap": 73.2, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "housecat6d_foundpose": {"type": "baseline", "ar": 69.3, "ap": 65.3, "object_specific_training": 0, "symmetry_annotations_required": 0},
+        "housecat6d_foundpose_cosypose_mv": {"type": "baseline", "ar": 80.3, "ap": 79.5, "object_specific_training": 0, "symmetry_annotations_required": 1},
+        "housecat6d_foundpose_alignpose": {"type": "proposed", "ar": 85.6, "ap": 85.8, "object_specific_training": 0, "symmetry_annotations_required": 0}
+      }
+    },
+    "challenging_housecat6d_materials": {
+      "description": "HouseCat6D subset evaluation for glass and metallic objects.",
+      "weight": 0.2,
+      "primary_metric": "ap",
+      "metrics": {
+        "ar": {"higher_is_better": true, "coefficient": 1.0},
+        "ap": {"higher_is_better": true, "coefficient": 1.0},
+        "object_specific_training": {"higher_is_better": false, "coefficient": -0.2},
+        "rgb_only": {"higher_is_better": true, "coefficient": 0.1}
+      },
+      "results": {
+        "glass_foundpose": {"type": "baseline", "ar": 64.8, "ap": 67.4, "object_specific_training": 0, "rgb_only": 1},
+        "glass_cosypose_mv": {"type": "baseline", "ar": 77.0, "ap": 79.0, "object_specific_training": 0, "rgb_only": 1},
+        "glass_alignpose": {"type": "proposed", "ar": 88.0, "ap": 92.3, "object_specific_training": 0, "rgb_only": 1},
+        "metallic_foundpose": {"type": "baseline", "ar": 24.1, "ap": 27.7, "object_specific_training": 0, "rgb_only": 1},
+        "metallic_cosypose_mv": {"type": "baseline", "ar": 24.9, "ap": 28.9, "object_specific_training": 0, "rgb_only": 1},
+        "metallic_alignpose": {"type": "proposed", "ar": 34.0, "ap": 38.8, "object_specific_training": 0, "rgb_only": 1}
+      }
+    },
+    "seen_tless_pose": {
+      "description": "Seen-object T-LESS comparison against published single-view and multi-view baselines.",
+      "weight": 0.2,
+      "primary_metric": "ar",
+      "metrics": {
+        "ar": {"higher_is_better": true, "coefficient": 1.0},
+        "ap": {"higher_is_better": true, "coefficient": 1.0},
+        "num_views": {"higher_is_better": false, "coefficient": 0.0},
+        "rgb_only": {"higher_is_better": true, "coefficient": 0.1}
+      },
+      "results": {
+        "synt_cendernet": {"type": "baseline", "ar": 71.3, "num_views": 5, "rgb_only": 1},
+        "synt_dpodv2": {"type": "baseline", "ar": 63.6, "num_views": 1, "rgb_only": 1},
+        "synt_dpodv2_mv": {"type": "baseline", "ar": 68.9, "num_views": 4, "rgb_only": 1},
+        "synt_cosypose": {"type": "baseline", "ar": 64.0, "ap": 63.0, "num_views": 1, "rgb_only": 1},
+        "synt_cosypose_mv": {"type": "baseline", "ar": 72.8, "ap": 70.6, "num_views": 4, "rgb_only": 1},
+        "synt_alignpose": {"type": "proposed", "ar": 85.5, "ap": 89.2, "num_views": 4, "rgb_only": 1},
+        "synt_real_dpodv2": {"type": "baseline", "ar": 65.5, "num_views": 1, "rgb_only": 1},
+        "synt_real_dpodv2_mv": {"type": "baseline", "ar": 72.0, "num_views": 4, "rgb_only": 1},
+        "synt_real_cosypose": {"type": "baseline", "ar": 72.8, "ap": 74.1, "num_views": 1, "rgb_only": 1},
+        "synt_real_cosypose_mv": {"type": "baseline", "ar": 81.5, "ap": 81.7, "num_views": 4, "rgb_only": 1},
+        "synt_real_alignpose": {"type": "proposed", "ar": 86.8, "ap": 91.0, "num_views": 4, "rgb_only": 1}
+      }
+    },
+    "component_contribution": {
+      "description": "Ablation of partial versus complete multi-view system variants on YCB-V and T-LESS.",
+      "weight": 0.15,
+      "primary_metric": "ap",
+      "metrics": {
+        "ar": {"higher_is_better": true, "coefficient": 1.0},
+        "ap": {"higher_is_better": true, "coefficient": 1.0},
+        "num_views": {"higher_is_better": false, "coefficient": 0.0}
+      },
+      "results": {
+        "ycbv_1_view": {"type": "baseline", "ar": 69.7, "ap": 69.5, "num_views": 1},
+        "ycbv_4_views_aggregation": {"type": "baseline", "ar": 63.7, "ap": 33.9, "num_views": 4},
+        "ycbv_4_views_aggregation_refine": {"type": "baseline", "ar": 84.5, "ap": 38.0, "num_views": 4},
+        "ycbv_4_views_aggregation_nms": {"type": "baseline", "ar": 63.0, "ap": 62.3, "num_views": 4},
+        "ycbv_full": {"type": "proposed", "ar": 83.8, "ap": 83.3, "num_views": 4},
+        "tless_1_view": {"type": "baseline", "ar": 68.2, "ap": 68.9, "num_views": 1},
+        "tless_4_views_aggregation": {"type": "baseline", "ar": 69.5, "ap": 48.6, "num_views": 4},
+        "tless_4_views_aggregation_refine": {"type": "baseline", "ar": 77.7, "ap": 39.9, "num_views": 4},
+        "tless_4_views_aggregation_nms": {"type": "baseline", "ar": 73.1, "ap": 80.2, "num_views": 4},
+        "tless_full": {"type": "proposed", "ar": 89.5, "ap": 92.4, "num_views": 4}
+      }
+    }
+  }
+}

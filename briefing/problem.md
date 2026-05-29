@@ -1,17 +1,15 @@
 # Problem Definition
 
-What problem does this paper address? Write this so that someone with no knowledge of the paper can understand what needs to be solved and how success is measured.
-
-Do NOT describe the paper's method or solution here — only the problem itself. Think about if a future scientist agent try to solve this problem from scratch without knowing what approach the paper took. If you leak the solution, you compromise the benchmark.
+This benchmark concerns multi-view 6D pose estimation for rigid objects. A solver receives multiple RGB images of the same scene, camera intrinsics, known camera extrinsics in a shared world frame, and a 3D model for each target object. It must output object identities, confidence scores, and 6D poses that are geometrically correct and consistent across the camera views.
 
 ## Research Question
 
-<!-- What problem or challenge does this paper tackle? What gap in existing work does it address? -->
+Can a system accurately estimate 6D poses for previously unseen objects from calibrated multi-view RGB images, without relying on object-specific training or depth input, and outperform strong single-view and multi-view baselines under BOP-style evaluation?
 
 ## Why It Matters
 
-<!-- Why is this problem important? What would a good solution enable? Make it short -->
+Accurate 6D pose estimates are needed for robot manipulation, inspection, augmented reality, and scene understanding. Multi-view RGB setups can reduce single-view ambiguities from occlusion, clutter, and depth uncertainty while avoiding the cost or failure modes of depth sensors.
 
 ## Success Criteria
 
-<!-- What would a successful solution look like? What properties should it have? This is about the goal, not the paper's specific approach. Make it short -->
+A successful solution should produce high-recall and high-precision object poses on multi-view test scenes, generalize to object meshes not used for training, work with RGB images plus calibration, and remain reliable on textureless, reflective, transparent, and cluttered scenes.
