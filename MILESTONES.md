@@ -35,4 +35,4 @@
 - Final scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00 with no ground-truth pose copying.
 
 ## Stop Justification
-- Final verification complete at milestone `core_claim`.
+- Completed at milestone `core_claim`.
