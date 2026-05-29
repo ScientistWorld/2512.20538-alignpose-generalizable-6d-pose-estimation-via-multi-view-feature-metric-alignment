@@ -26,6 +26,8 @@ CPU test job `cba204d5-f6f` reran `scripts/reproduce.sh` after the fix and compl
 
 Audit on 2026-05-29 found that the feature extraction path was still too reduced: it used handcrafted RGB/gradient descriptors instead of the paper's frozen feature maps extracted from query and rendered object images. The method has been revised to use a local DINOv2-S feature extractor, render coarse-pose RGB-D object views, lift rendered descriptors into object coordinates, and optimize the same multi-view SE(3) feature-metric objective. The scorer now records explicit protocol constraint metrics. A scheduler job is pending to validate the revised pipeline before claiming `core_claim` again.
 
+CPU test job `216bf4fb-60f` failed before method execution because `AutoImageProcessor` required `torchvision`, which was not installed in the container. The method now implements the DINOv2 preprocessing directly from the downloaded `preprocessor_config.json` using PIL resize and torch normalization, avoiding the extra torchvision dependency while keeping the same local DINOv2 model.
+
 ## Deviations from Paper
 
 The full paper uses BOP datasets, DINOv2-L layer 18 features with PCA, RGB-D rendering for registered feature lifting, and BOP AR/AP metrics. This workspace currently uses a deterministic synthetic benchmark and DINOv2-S layer 9 features without PCA so the core multi-view aggregation plus feature-metric SE(3) refinement can run within the available environment. The algorithmic stages are preserved; the dataset scale and backbone size are reduced.

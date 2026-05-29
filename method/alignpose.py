@@ -25,14 +25,18 @@ class DinoPatchFeatures:
         import torch
         import torch.nn.functional as F
         from PIL import Image
-        from transformers import AutoImageProcessor, AutoModel
+        from transformers import AutoModel
 
         self.torch = torch
         self.F = F
         self.Image = Image
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.layer = layer
-        self.processor = AutoImageProcessor.from_pretrained(model_dir, local_files_only=True)
+        processor_cfg = json.loads(Path(model_dir, "preprocessor_config.json").read_text())
+        crop = processor_cfg.get("crop_size", {"height": 224, "width": 224})
+        self.input_size = (int(crop["width"]), int(crop["height"]))
+        self.mean = torch.tensor(processor_cfg.get("image_mean", [0.485, 0.456, 0.406]), dtype=torch.float32)[:, None, None]
+        self.std = torch.tensor(processor_cfg.get("image_std", [0.229, 0.224, 0.225]), dtype=torch.float32)[:, None, None]
         self.model = AutoModel.from_pretrained(model_dir, local_files_only=True).to(self.device)
         self.model.eval()
 
@@ -40,9 +44,11 @@ class DinoPatchFeatures:
         arr = np.asarray(image, dtype=np.float32)
         if arr.max() <= 1.0:
             arr = arr * 255.0
-        pil = self.Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), mode="RGB")
-        inputs = self.processor(images=pil, return_tensors="pt")
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        pil = self.Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), mode="RGB").resize(self.input_size, self.Image.BICUBIC)
+        pixels = np.asarray(pil, dtype=np.float32) / 255.0
+        tensor = self.torch.from_numpy(pixels).permute(2, 0, 1)
+        tensor = (tensor - self.mean) / self.std
+        inputs = {"pixel_values": tensor[None].to(self.device)}
         with self.torch.no_grad():
             outputs = self.model(**inputs, output_hidden_states=True)
         hidden = outputs.hidden_states[self.layer][0, 1:, :]
