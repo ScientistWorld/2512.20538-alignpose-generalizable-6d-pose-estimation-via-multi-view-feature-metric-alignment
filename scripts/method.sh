@@ -7,5 +7,5 @@ cd "$(dirname "$0")/.."
 mkdir -p outputs
 
 python -m method.alignpose \
-  --dataset data/synthetic_benchmark.json \
+  --dataset data/synthetic_inputs.json \
   --output outputs/alignpose_predictions.json

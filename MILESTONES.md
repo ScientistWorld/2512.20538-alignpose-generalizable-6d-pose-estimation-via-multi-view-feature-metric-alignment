@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: core_claim**
+**Current: method_runs**
 
 ## Progress Log
 
@@ -19,5 +19,10 @@
 - On the 12-scene reduced benchmark, AlignPose improved over the single-view candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00.
 - The score artifact includes the core constraints: four calibrated RGB views, no depth sensor, no object-specific training, frozen DINOv2 features, and duplicate suppression.
 
+### [2026-05-29 03:58] - method_runs
+- Packaging audit found that `scripts/run.sh` evaluated stale prediction artifacts and that canonical `scores.json` lacked the newer integrity metrics.
+- Updated scheduler execution to regenerate baseline and AlignPose predictions before all scoring steps.
+- Split method-visible synthetic inputs from evaluation labels by adding `data/synthetic_inputs.json`; submitting a CPU test job before restoring `core_claim`.
+
 ## Stop Justification
-- Completed at milestone `core_claim`.
+- Active: validating packaging fixes before final completion.

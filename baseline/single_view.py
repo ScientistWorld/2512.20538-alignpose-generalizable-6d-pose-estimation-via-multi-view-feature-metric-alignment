@@ -40,7 +40,7 @@ def run_baseline(dataset_path, output_path, max_scenes=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="data/synthetic_benchmark.json")
+    parser.add_argument("--dataset", default="data/synthetic_inputs.json")
     parser.add_argument("--output", default="outputs/baseline_predictions.json")
     parser.add_argument("--max-scenes", type=int)
     args = parser.parse_args()

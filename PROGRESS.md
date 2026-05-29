@@ -30,6 +30,10 @@ CPU test job `216bf4fb-60f` failed before method execution because `AutoImagePro
 
 CPU test job `926ce860-7c2` reran `scripts/reproduce.sh` after that fix and completed in about 5 minutes. The evaluator passed validation with explicit protocol constraints: the method used four calibrated RGB views, no depth sensor, no object-specific training, and frozen DINOv2 features. This restores the `core_claim` milestone for the audited implementation.
 
+Follow-up packaging audit on 2026-05-29 found two issues in the final handoff: `scripts/run.sh` only evaluated existing artifacts, and canonical `scoring/scores.json` did not include the complete integrity metric set used by the train/test evaluators. The scheduler script now regenerates baseline and AlignPose outputs before evaluation. The canonical evaluator now discovers prediction artifacts and reports `complete_prediction_rate`, `candidate_add_gain_pct`, and `exact_pose_copy_rate`. Method and baseline scripts now consume `data/synthetic_inputs.json`, a label-stripped version of the synthetic benchmark, while evaluators keep using `data/synthetic_benchmark.json` with ground truth labels.
+
+A CPU test job is being submitted to validate these packaging fixes in the container before restoring the final `core_claim` completion signal.
+
 ## Deviations from Paper
 
 The full paper uses BOP datasets, DINOv2-L layer 18 features with PCA, RGB-D rendering for registered feature lifting, and BOP AR/AP metrics. This workspace currently uses a deterministic synthetic benchmark and DINOv2-S layer 9 features without PCA so the core multi-view aggregation plus feature-metric SE(3) refinement can run within the available environment. The algorithmic stages are preserved; the dataset scale and backbone size are reduced.

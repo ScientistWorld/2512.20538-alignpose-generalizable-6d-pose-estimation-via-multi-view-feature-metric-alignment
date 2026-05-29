@@ -4,5 +4,8 @@
 set -euo pipefail
 
 cd /home/user
+./scripts/baseline.sh
+./scripts/method.sh
+./scripts/evaluate.sh
 ./scripts/evaluate_train.sh
 ./scripts/evaluate_test.sh

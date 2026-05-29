@@ -1,5 +1,5 @@
-action: done
+action: submit
 gpus: 0
-test: false
-milestone: core_claim
-notes: "Packaging audit complete: download.sh has executable public Hugging Face fetches for DINOv2-S, generated synthetic data stays tracked, paths align, and validate.py passes with no shared/ references."
+test: true
+milestone: method_runs
+notes: "CPU packaging regression test: regenerate baseline and AlignPose outputs from label-stripped method inputs, then run canonical plus train/test evaluation after scoring integrity fixes."

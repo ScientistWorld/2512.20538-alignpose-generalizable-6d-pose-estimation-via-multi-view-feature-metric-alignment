@@ -18,3 +18,9 @@ mkdir -p "$model_dir"
 if [ ! -f data/synthetic_benchmark.json ]; then
   python data/synthetic_alignpose.py --output data/synthetic_benchmark.json --scenes 12 --views 4
 fi
+
+if [ ! -f data/synthetic_inputs.json ]; then
+  python data/make_method_inputs.py \
+    --source data/synthetic_benchmark.json \
+    --output data/synthetic_inputs.json
+fi

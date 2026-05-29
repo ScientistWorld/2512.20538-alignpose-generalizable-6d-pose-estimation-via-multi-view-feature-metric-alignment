@@ -261,7 +261,7 @@ def run_alignpose(dataset_path, output_path, max_scenes=None, max_points=90, mod
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="data/synthetic_benchmark.json")
+    parser.add_argument("--dataset", default="data/synthetic_inputs.json")
     parser.add_argument("--output", default="outputs/alignpose_predictions.json")
     parser.add_argument("--max-scenes", type=int)
     parser.add_argument("--max-points", type=int, default=90)
