@@ -205,6 +205,31 @@ Use the official BOP-style pose evaluation wherever possible. Evaluate on YCB-V,
 
 </details>
 
+### Iteration 6: gpt-5.5 (designer_stage_3)
+- **Milestone**: `core_claim` | **Status**: done
+- **Working time**: 1m | **GPU**: 0.0h
+- **Jobs**: 5 total (4 completed, 1 failed)
+
+<details>
+<summary>Progress Log</summary>
+
+### [2026-05-29 03:22] - method_runs
+- Previous reduced AlignPose pipeline ran end-to-end on the scheduler.
+- After audit, revised the method to use local DINOv2-S patch features, rendered RGB-D registered features, and explicit scored protocol constraints.
+- Submitting a CPU test job to validate the revised end-to-end pipeline before restoring any `core_claim` claim.
+
+### [2026-05-29 03:27] - method_runs
+- CPU test job `216bf4fb-60f` failed during DINO preprocessing setup because `AutoImageProcessor` required `torchvision`.
+- Replaced `AutoImageProcessor` with direct local preprocessing from `preprocessor_config.json`, keeping offline DINOv2-S features and avoiding the missing dependency.
+- Resubmitting the revised end-to-end reproduction job.
+
+### [2026-05-29 03:35] - core_claim
+- CPU test job `926ce860-7c2` completed successfully with the revised DINOv2-S query/render feature pipeline.
+- On the 12-scene reduced benchmark, AlignPose improved over the single-view candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00.
+- The score artifact includes the core constraints: four calibrated RGB views, no depth sensor, no object-specific training, frozen DINOv2 features, and duplicate suppression.
+
+</details>
+
 
 ---
 
