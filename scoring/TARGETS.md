@@ -3,7 +3,7 @@
 ## tless_coop_ablation
 
 Tests the core claim on the runnable reduced benchmark: a calibrated four-view
-pose task with noisy single-view candidates, where the full multi-view pipeline
+pose task with noisy single-view candidates, where a valid multi-view estimator
 should improve over the unrefined candidate baseline.
 
 - **Benefit metrics**: `AR`, `AP` (higher is better)
