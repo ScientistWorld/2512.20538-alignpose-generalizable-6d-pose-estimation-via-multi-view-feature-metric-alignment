@@ -1,36 +1,74 @@
 {
   "experiments": {
-    "tless_coop_ablation": {
+    "textureless_clutter": {
       "results": {
         "alignpose": {
-          "AR": 100.0,
-          "AP": 100.0,
-          "complete_prediction_rate": 100.0,
-          "candidate_add_gain_pct": 2.6385459958939044,
-          "exact_pose_copy_rate": 0.0,
-          "mean_add_error": 0.020170822030170336,
-          "median_translation_error": 0.015710125719373032,
-          "median_rotation_error_deg": 4.073958213712344,
-          "mean_final_candidates": 1.0,
-          "num_views": 4.0,
-          "uses_depth_sensor": 0.0,
-          "object_specific_training": 0.0,
-          "uses_dinov2_features": 1.0
+          "AR": 73.05555555555556,
+          "AP": 71.58101000690729
+        },
+        "multiview_aggregation": {
+          "AR": 48.68055555555556,
+          "AP": 35.891295536139204
+        },
+        "multiview_aggregation_nms": {
+          "AR": 48.68055555555556,
+          "AP": 43.304859950280736
+        },
+        "multiview_consensus": {
+          "AR": 72.50000000000001,
+          "AP": 70.07753565535126
         },
         "single_view_candidate": {
-          "AR": 55.55555555555555,
-          "AP": 66.66666666666666,
-          "complete_prediction_rate": 100.0,
-          "candidate_add_gain_pct": -3.3974609267736136,
-          "exact_pose_copy_rate": 0.0,
-          "mean_add_error": 0.07163463968759627,
-          "median_translation_error": 0.0487159968811541,
-          "median_rotation_error_deg": 10.610275096912877,
-          "mean_final_candidates": 12.0,
-          "num_views": 4.0,
-          "uses_depth_sensor": 0.0,
-          "object_specific_training": 0.0,
-          "uses_dinov2_features": 0.0
+          "AR": 31.805555555555554,
+          "AP": 29.55839668788307
+        }
+      }
+    },
+    "textured_household": {
+      "results": {
+        "alignpose": {
+          "AR": 77.70833333333333,
+          "AP": 76.19315346713242
+        },
+        "multiview_aggregation": {
+          "AR": 56.25,
+          "AP": 39.93783132232098
+        },
+        "multiview_aggregation_nms": {
+          "AR": 56.25,
+          "AP": 50.20650684573952
+        },
+        "multiview_consensus": {
+          "AR": 82.70833333333336,
+          "AP": 80.981703304259
+        },
+        "single_view_candidate": {
+          "AR": 35.62499999999999,
+          "AP": 33.03683783556927
+        }
+      }
+    },
+    "reflective_industrial": {
+      "results": {
+        "alignpose": {
+          "AR": 58.05555555555555,
+          "AP": 54.837335742502816
+        },
+        "multiview_aggregation": {
+          "AR": 37.708333333333336,
+          "AP": 27.702027616768575
+        },
+        "multiview_aggregation_nms": {
+          "AR": 37.708333333333336,
+          "AP": 32.246467727129854
+        },
+        "multiview_consensus": {
+          "AR": 59.791666666666664,
+          "AP": 56.639080425899735
+        },
+        "single_view_candidate": {
+          "AR": 26.180555555555557,
+          "AP": 22.49122858714443
         }
       }
     }

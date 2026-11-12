@@ -1,8 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: pending
+action: submit
 gpus: 0
-test: false
+test: true
 milestone: core_claim
-notes: ""
+notes: "Smoke test of the rebuilt gym: generate visible train split, run every variant/shortcut on 2 hidden scenes per regime, full train evaluation of on-disk submissions."
