@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
-import numpy as np
+from statistics import pstdev
 
 ROOT = Path(__file__).resolve().parents[1]
 EXP = 'tless_coop_ablation'
@@ -62,26 +62,28 @@ def main():
         'scientific_controls': [k for k in rows if not k.startswith('shortcut_')],
     }
     summary = {'reference': ref, 'formula': 'sum(weight * abs(coefficient) * direction * (value-reference)/population_std)',
-               'cohort_note': 'Only measured tless experiment contributes; other experiments are absent. Unseen future cohort variances are unknown.',
+               'cohort_note': 'Only measured tless experiment contributes; other experiments are absent. Unseen future cohort variances are unknown. Failed tests have null rank: an external failure policy was not supplied.',
                'cohorts': {}, 'attempts': {}, 'statuses': statuses}
     for label, names in cohorts.items():
         std = {}
         for key in defs:
             values = [rows[n].get(key) for n in names]
             finite = [v for v in values if isinstance(v, (int, float)) and math.isfinite(v)]
-            std[key] = float(np.std(finite)) if finite else 0.
+            std[key] = float(pstdev(finite)) if finite else 0.
         summary['cohorts'][label] = {'members': names, 'population_std': std}
         for name in names:
             delta, skipped = rank(rows[name], ref, defs, std, weight)
             row = summary['attempts'].setdefault(name, {'metrics': rows[name]})
-            row[label+'_rank_delta'] = delta
+            eligible = statuses.get(name, {}).get('test_exit_code', 0) == 0
+            row[label+'_rank_delta'] = delta if eligible else None
+            row['test_succeeded'] = eligible
             row['skipped_metrics'] = skipped
     for name, row in summary['attempts'].items():
         pair_std = {k: abs(row['metrics'].get(k, ref[k])-ref[k])/2
                     if isinstance(row['metrics'].get(k, ref[k]), (int, float)) else 0.
                     for k in defs}
         pair_delta, _ = rank(row['metrics'], ref, defs, pair_std, weight)
-        row['pairwise_rank_delta'] = pair_delta
+        row['pairwise_rank_delta'] = pair_delta if row['test_succeeded'] else None
     seeds = [rows[f'reference_seed{i}'] for i in range(3)]
     summary['seed_metric_spread'] = {k: max(s[k] for s in seeds)-min(s[k] for s in seeds) for k in ref}
     for cohort in cohorts:
@@ -91,7 +93,7 @@ def main():
     for name, row in summary['attempts'].items():
         print(name, 'AR=', row['metrics'].get('AR'), 'AP=', row['metrics'].get('AP'),
               'ADD=', row['metrics'].get('mean_add_error'),
-              'rank=', round(row['all_audit_attempts_rank_delta'], 6),
+              'rank=', (round(row['all_audit_attempts_rank_delta'], 6) if row['all_audit_attempts_rank_delta'] is not None else None),
               'exit=', statuses.get(name, {}).get('test_exit_code'))
 
 if __name__ == '__main__':

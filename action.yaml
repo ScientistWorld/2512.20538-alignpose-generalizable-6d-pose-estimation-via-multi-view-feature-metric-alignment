@@ -1,4 +1,2 @@
-action: submit
-gpus: 0
-test: false
-notes: "Run bundled benchmark audit: seeded references, quality variants, brute-force controls, and isolated scoring shortcuts; save per-case hidden scores under redteam/."
+action: done
+notes: "Completed 26-case scoring audit: honest improvements rank higher, but synthetic brute force, visible labels, mutable comparisons, trusted metadata, and omitted results reward shortcuts. See REDTEAM.md."

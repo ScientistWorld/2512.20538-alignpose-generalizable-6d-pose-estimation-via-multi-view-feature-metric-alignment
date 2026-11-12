@@ -15,7 +15,7 @@
     "uses_dinov2_features": 1.0
   },
   "formula": "sum(weight * abs(coefficient) * direction * (value-reference)/population_std)",
-  "cohort_note": "Only measured tless experiment contributes; other experiments are absent. Unseen future cohort variances are unknown.",
+  "cohort_note": "Only measured tless experiment contributes; other experiments are absent. Unseen future cohort variances are unknown. Failed tests have null rank: an external failure policy was not supplied.",
   "cohorts": {
     "all_audit_attempts": {
       "members": [
@@ -52,15 +52,15 @@
         "AP": 31.793119839609993,
         "complete_prediction_rate": 0.0,
         "candidate_add_gain_pct": 23915.37168950225,
-        "exact_pose_copy_rate": 19.982631347136333,
+        "exact_pose_copy_rate": 19.98263134713633,
         "mean_add_error": 0.08765170655582556,
         "median_translation_error": 0.01460284109213036,
-        "median_rotation_error_deg": 31.211912990105134,
+        "median_rotation_error_deg": 31.211912990105137,
         "mean_final_candidates": 199826.60887884986,
         "num_views": 199827.1127766172,
         "uses_depth_sensor": 0.0,
         "object_specific_training": 0.0,
-        "uses_dinov2_features": 0.4982608642958916
+        "uses_dinov2_features": 0.49826086429589156
       }
     },
     "scientific_controls": {
@@ -85,7 +85,7 @@
         "mean_add_error": 0.02530677619437412,
         "median_translation_error": 0.013806732503297146,
         "median_rotation_error_deg": 4.535361565599148,
-        "mean_final_candidates": 3.3000000000000003,
+        "mean_final_candidates": 3.3,
         "num_views": 0.0,
         "uses_depth_sensor": 0.0,
         "object_specific_training": 0.0,
@@ -111,6 +111,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": 0.04809819215205266,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": 0.15272929587651143,
       "pairwise_rank_delta": 2.0900000000000003
@@ -132,6 +133,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": -0.056945020441455926,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": -0.101279789276301,
       "pairwise_rank_delta": -0.9900000000000002
@@ -153,6 +155,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.040333112173482184,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": 0.06246084881792764,
       "pairwise_rank_delta": 1.4300000000000002
@@ -174,6 +177,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.03766473734388112,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": 0.12668000870429036,
       "pairwise_rank_delta": 1.4300000000000002
@@ -195,6 +199,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": -0.5664128332932857,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": -1.1315156261200938,
       "pairwise_rank_delta": -2.5300000000000007
@@ -216,6 +221,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": 0.0,
       "pairwise_rank_delta": 0.0
@@ -237,6 +243,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": 0.0,
       "pairwise_rank_delta": 0.0
@@ -258,6 +265,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": 0.0,
       "pairwise_rank_delta": 0.0
@@ -279,6 +287,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 0.0
     },
@@ -299,6 +308,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": -4.74880637471422,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": -3.4100000000000006
     },
@@ -319,12 +329,14 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 0.0
     },
     "shortcut_empty": {
       "metrics": {},
-      "all_audit_attempts_rank_delta": 0.0,
+      "all_audit_attempts_rank_delta": null,
+      "test_succeeded": false,
       "skipped_metrics": [
         "AR",
         "AP",
@@ -339,7 +351,7 @@
         "uses_depth_sensor",
         "object_specific_training"
       ],
-      "pairwise_rank_delta": 0.0
+      "pairwise_rank_delta": null
     },
     "shortcut_generator_replay": {
       "metrics": {
@@ -358,6 +370,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": 0.3181670247319506,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 2.5300000000000007
     },
@@ -378,6 +391,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": -3.519488047557217,
+      "test_succeeded": true,
       "skipped_metrics": [
         "candidate_add_gain_pct",
         "mean_add_error",
@@ -401,7 +415,8 @@
         "object_specific_training": 0.0,
         "uses_dinov2_features": 0.0
       },
-      "all_audit_attempts_rank_delta": -2.9846912498687015,
+      "all_audit_attempts_rank_delta": -2.9846912498687024,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 1.2100000000000002
     },
@@ -422,12 +437,14 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": 0.3181670247319506,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 2.5300000000000007
     },
     "shortcut_malformed": {
       "metrics": {},
-      "all_audit_attempts_rank_delta": 0.0,
+      "all_audit_attempts_rank_delta": null,
+      "test_succeeded": false,
       "skipped_metrics": [
         "AR",
         "AP",
@@ -442,7 +459,7 @@
         "uses_depth_sensor",
         "object_specific_training"
       ],
-      "pairwise_rank_delta": 0.0
+      "pairwise_rank_delta": null
     },
     "shortcut_move_ground_truth": {
       "metrics": {
@@ -461,12 +478,14 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": 0.3186219926431398,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 2.5300000000000007
     },
     "shortcut_omit_method": {
       "metrics": {},
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [
         "AR",
         "AP",
@@ -500,6 +519,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": 0.27675377201478235,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 2.5300000000000007
     },
@@ -520,6 +540,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 1.3484912531242923,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 0.55
     },
@@ -540,6 +561,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": 0.31816649329644725,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 2.5300000000000007
     },
@@ -560,6 +582,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.41285840818052605,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 0.16500000000000004
     },
@@ -580,6 +603,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 0.0
     },
@@ -600,6 +624,7 @@
         "uses_dinov2_features": 1.0
       },
       "all_audit_attempts_rank_delta": 0.0,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "pairwise_rank_delta": 0.0
     },
@@ -620,6 +645,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": -2.385409346349933,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": -4.215954903941806,
       "pairwise_rank_delta": -3.4100000000000006
@@ -641,6 +667,7 @@
         "uses_dinov2_features": 0.0
       },
       "all_audit_attempts_rank_delta": -2.385412373974749,
+      "test_succeeded": true,
       "skipped_metrics": [],
       "scientific_controls_rank_delta": -4.399288237275139,
       "pairwise_rank_delta": -3.5200000000000005
