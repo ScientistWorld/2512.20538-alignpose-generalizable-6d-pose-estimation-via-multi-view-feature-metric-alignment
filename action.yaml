@@ -3,6 +3,6 @@
 # only after your turn ends.
 action: submit
 gpus: 0
-test: true
+test: false
 milestone: core_claim
-notes: "Smoke test of the rebuilt gym: generate visible train split, run every variant/shortcut on 2 hidden scenes per regime, full train evaluation of on-disk submissions."
+notes: "Resumable full hardening job (survives preemption): evaluate_train + evaluate_test (reference + baselines, 420px crops), then hidden-test audit of variants and shortcuts with paired bootstrap."
