@@ -23,6 +23,7 @@ Usage:  python -m method.alignpose --input-dir INPUTS --output predictions.json
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import multiprocessing as mp
 import os
@@ -331,7 +332,21 @@ def worker_count(requested):
         return max(1, os.cpu_count() or 1)
 
 
+def _digest(*parts):
+    h = hashlib.sha1()
+    for part in parts:
+        h.update(part if isinstance(part, bytes) else str(part).encode())
+        h.update(b"|")
+    return h.hexdigest()
+
+
 def run(cfg, input_dir, output, workers=None, max_scenes=None):
+    """Run the pipeline on every scene of ``input_dir``.
+
+    If ``ALIGNPOSE_CACHE_DIR`` is set, per-object PCA bases and per-scene results
+    are cached there, keyed by the configuration and the input file contents, so
+    an interrupted run resumes where it stopped (results are identical).
+    """
     for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
         os.environ[var] = "1"
     index = load_index(input_dir)
@@ -339,21 +354,56 @@ def run(cfg, input_dir, output, workers=None, max_scenes=None):
     n_workers = worker_count(workers)
     ctx = mp.get_context("spawn")
     t0 = time.time()
+    cache = Path(os.environ["ALIGNPOSE_CACHE_DIR"]) if os.environ.get("ALIGNPOSE_CACHE_DIR") else None
+    if cache:
+        cache.mkdir(parents=True, exist_ok=True)
+    objects = list(index["objects"])
+    obj_bytes = {o: (Path(input_dir) / "objects" / f"{o}.json").read_bytes() for o in objects}
     pcas = {}
     if cfg["refine"]:
-        objects = list(index["objects"])
-        with ctx.Pool(min(n_workers, len(objects)), initializer=_init_worker, initargs=(cfg, {})) as pool:
-            for oid, pca in zip(objects, pool.map(_onboard_task, [(input_dir, o) for o in objects], chunksize=1)):
-                pcas[oid] = pca
-        print(f"onboarded {len(pcas)} objects in {time.time() - t0:.1f}s", flush=True)
-    detections = []
-    tasks = [(input_dir, sid) for sid in scene_ids]
-    with ctx.Pool(min(n_workers, len(tasks)), initializer=_init_worker, initargs=(cfg, pcas)) as pool:
-        for i, (sid, dets, dt) in enumerate(pool.imap(_scene_task, tasks, chunksize=1)):
-            detections.extend(dets)
-            if i % 20 == 0 or i == len(tasks) - 1:
-                print(f"[{i + 1}/{len(tasks)}] {sid}: {len(dets)} detections, {dt:.1f}s "
-                      f"(elapsed {time.time() - t0:.0f}s)", flush=True)
+        onboard_cfg = json.dumps({k: cfg[k] for k in ("features", "model_dir", "layer", "crop", "n_templates", "pca_dim")},
+                                 sort_keys=True)
+        keys = {o: _digest(onboard_cfg, obj_bytes[o]) for o in objects}
+        todo = []
+        for o in objects:
+            f = cache / f"pca_{keys[o]}.npz" if cache else None
+            if f is not None and f.is_file():
+                with np.load(f) as z:
+                    pcas[o] = {"mean": z["mean"], "components": z["components"]}
+            else:
+                todo.append(o)
+        if todo:
+            with ctx.Pool(min(n_workers, len(todo)), initializer=_init_worker, initargs=(cfg, {})) as pool:
+                for o, pca in zip(todo, pool.map(_onboard_task, [(input_dir, x) for x in todo], chunksize=1)):
+                    pcas[o] = pca
+                    if cache:
+                        np.savez(cache / f"pca_{keys[o]}.npz", mean=pca["mean"], components=pca["components"])
+        print(f"onboarded {len(pcas)} objects ({len(todo)} computed) in {time.time() - t0:.1f}s", flush=True)
+    run_cfg = json.dumps({k: v for k, v in cfg.items() if k != "name"}, sort_keys=True)
+    lib_key = _digest(*[obj_bytes[o] for o in sorted(objects)])
+    results, scene_keys, tasks = {}, {}, []
+    for sid in scene_ids:
+        sdir = Path(input_dir) / "scenes" / sid
+        scene_keys[sid] = _digest(run_cfg, lib_key, *[f.read_bytes() for f in sorted(sdir.iterdir()) if f.is_file()])
+        f = cache / f"scene_{scene_keys[sid]}.json" if cache else None
+        if f is not None and f.is_file():
+            results[sid] = json.loads(f.read_text())
+        else:
+            tasks.append((input_dir, sid))
+    if results:
+        print(f"reused {len(results)} cached scenes", flush=True)
+    if tasks:
+        with ctx.Pool(min(n_workers, len(tasks)), initializer=_init_worker, initargs=(cfg, pcas)) as pool:
+            for i, (sid, dets, dt) in enumerate(pool.imap(_scene_task, tasks, chunksize=1)):
+                results[sid] = dets
+                if cache:
+                    tmp = cache / f"scene_{scene_keys[sid]}.json.tmp"
+                    tmp.write_text(json.dumps(dets))
+                    tmp.replace(cache / f"scene_{scene_keys[sid]}.json")
+                if i % 20 == 0 or i == len(tasks) - 1:
+                    print(f"[{i + 1}/{len(tasks)}] {sid}: {len(dets)} detections, {dt:.1f}s "
+                          f"(elapsed {time.time() - t0:.0f}s)", flush=True)
+    detections = [d for sid in scene_ids for d in results[sid]]
     payload = {"method": cfg["name"], "config": {k: v for k, v in cfg.items() if k != "name"},
                "detections": detections}
     Path(output).parent.mkdir(parents=True, exist_ok=True)

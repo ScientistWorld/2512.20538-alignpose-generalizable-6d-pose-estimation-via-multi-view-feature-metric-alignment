@@ -13,6 +13,7 @@ train split uses different scenes and a disjoint object library.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -53,6 +54,30 @@ def run_submission(script, input_dir, output_path, log_path):
     return code, time.time() - start
 
 
+def run_cached(script, name, input_dir, output_path, log_path, resume_dir):
+    """Run a submission; with ``resume_dir`` reuse a finished run of the same script."""
+    if resume_dir is None:
+        return run_submission(script, input_dir, output_path, log_path)
+    key = hashlib.sha1(Path(script).read_bytes()).hexdigest()[:16]
+    store = Path(resume_dir) / "outputs"
+    store.mkdir(parents=True, exist_ok=True)
+    code_file = store / f"{name}.{key}.code"
+    if code_file.is_file():
+        code = code_file.read_text().strip()
+        code = int(code) if code.lstrip("-").isdigit() else code
+        if (store / f"{name}.{key}.json").is_file():
+            shutil.copy(store / f"{name}.{key}.json", output_path)
+        if (store / f"{name}.{key}.log").is_file():
+            shutil.copy(store / f"{name}.{key}.log", log_path)
+        return code, 0.0
+    code, elapsed = run_submission(script, input_dir, output_path, log_path)
+    if Path(output_path).is_file():
+        shutil.copy(output_path, store / f"{name}.{key}.json")
+    shutil.copy(log_path, store / f"{name}.{key}.log")
+    code_file.write_text(str(code))
+    return code, elapsed
+
+
 def tail(path, n=25):
     try:
         lines = Path(path).read_text(errors="replace").splitlines()
@@ -91,6 +116,8 @@ def main():
     parser.add_argument("--output", default=str(ROOT / "scoring" / "scores_train.json"))
     parser.add_argument("--details", default=None, help="optional per-target diagnostics")
     parser.add_argument("--save-predictions", default=None, help="optional directory to keep raw outputs and logs")
+    parser.add_argument("--resume-dir", default=None,
+                        help="optional cache so an interrupted evaluation resumes (never used for official scoring)")
     args = parser.parse_args()
 
     subs = discover_submissions(args.submissions_dir)
@@ -106,7 +133,7 @@ def main():
             shutil.copytree(args.inputs, inp)
             out = work / f"pred_{name}.json"
             log = work / f"log_{name}.txt"
-            code, elapsed = run_submission(script, inp, out, log)
+            code, elapsed = run_cached(script, name, inp, out, log, args.resume_dir)
             results, error = score_submission(prepared, out, code)
             if args.save_predictions:
                 keep = Path(args.save_predictions)

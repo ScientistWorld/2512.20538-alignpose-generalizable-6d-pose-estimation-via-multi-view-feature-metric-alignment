@@ -18,6 +18,7 @@ too many detections) is scored as failed: AR = AP = 0 in every experiment.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -56,6 +57,30 @@ def run_submission(script, input_dir, output_path, log_path):
         except subprocess.TimeoutExpired:
             code = "timeout"
     return code, time.time() - start
+
+
+def run_cached(script, name, input_dir, output_path, log_path, resume_dir):
+    """Run a submission; with ``resume_dir`` reuse a finished run of the same script."""
+    if resume_dir is None:
+        return run_submission(script, input_dir, output_path, log_path)
+    key = hashlib.sha1(Path(script).read_bytes()).hexdigest()[:16]
+    store = Path(resume_dir) / "outputs"
+    store.mkdir(parents=True, exist_ok=True)
+    code_file = store / f"{name}.{key}.code"
+    if code_file.is_file():
+        code = code_file.read_text().strip()
+        code = int(code) if code.lstrip("-").isdigit() else code
+        if (store / f"{name}.{key}.json").is_file():
+            shutil.copy(store / f"{name}.{key}.json", output_path)
+        if (store / f"{name}.{key}.log").is_file():
+            shutil.copy(store / f"{name}.{key}.log", log_path)
+        return code, 0.0
+    code, elapsed = run_submission(script, input_dir, output_path, log_path)
+    if Path(output_path).is_file():
+        shutil.copy(output_path, store / f"{name}.{key}.json")
+    shutil.copy(log_path, store / f"{name}.{key}.log")
+    code_file.write_text(str(code))
+    return code, elapsed
 
 
 def tail(path, n=25):
@@ -97,6 +122,8 @@ def main():
     parser.add_argument("--output", default=str(ROOT / "scoring" / "scores_test.json"))
     parser.add_argument("--details", default=None, help="optional per-target diagnostics (not ranked)")
     parser.add_argument("--save-predictions", default=None, help="optional directory to keep raw outputs and logs")
+    parser.add_argument("--resume-dir", default=None,
+                        help="optional cache so an interrupted evaluation resumes (never used for official scoring)")
     parser.add_argument("--smoke", action="store_true", help="tiny pipeline check; never used for scoring")
     parser.add_argument("--workers", type=int, default=None)
     args = parser.parse_args()
@@ -106,10 +133,21 @@ def main():
         raise SystemExit(f"no submissions found under {args.submissions_dir}")
     work = Path(tempfile.mkdtemp(prefix="mvpose_test_"))
     try:
-        pristine = work / "pristine"
         t0 = time.time()
-        gt = scenegen.generate_split("test", pristine, scenes_per_dataset=2 if args.smoke else None,
-                                     workers=args.workers)
+        if args.resume_dir and not args.smoke:
+            rd = Path(args.resume_dir)
+            rd.mkdir(parents=True, exist_ok=True)
+            pristine, gt_file, marker = rd / "pristine", rd / "gt.json", rd / "generated.ok"
+            if marker.is_file() and gt_file.is_file():
+                gt = json.loads(gt_file.read_text())
+            else:
+                gt = scenegen.generate_split("test", pristine, workers=args.workers)
+                gt_file.write_text(json.dumps(gt))
+                marker.write_text("ok")
+        else:
+            pristine = work / "pristine"
+            gt = scenegen.generate_split("test", pristine, scenes_per_dataset=2 if args.smoke else None,
+                                         workers=args.workers)
         prepared = scoring.prepare_gt(gt)
         print(f"[test] generated {len(gt['scenes'])} hidden scenes in {time.time() - t0:.1f}s", flush=True)
         scores = {exp: {} for exp in EXPERIMENTS}
@@ -119,7 +157,7 @@ def main():
             shutil.copytree(pristine, inp)
             out = work / f"pred_{name}.json"
             log = work / f"log_{name}.txt"
-            code, elapsed = run_submission(script, inp, out, log)
+            code, elapsed = run_cached(script, name, inp, out, log, args.resume_dir)
             results, error = score_submission(prepared, out, code)
             if args.save_predictions:
                 keep = Path(args.save_predictions)
