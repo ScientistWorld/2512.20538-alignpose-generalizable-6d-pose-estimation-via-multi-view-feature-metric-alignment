@@ -1,21 +1,30 @@
 #!/bin/bash
-# Scheduler job (smoke stage of the hardening iteration).
+# Scheduler job for the hardening iteration: regenerate the visible train split,
+# score the reference + baselines on train and on the hidden test, then audit
+# variants and shortcuts on the hidden test.
 set -euo pipefail
 cd /home/user
-mkdir -p tmp/smoke
+mkdir -p hardening/results
 python - <<'PY'
-import os, numpy, torch, transformers, PIL
-print("numpy", numpy.__version__, "torch", torch.__version__, "transformers", transformers.__version__, "PIL", PIL.__version__)
-print("cpus", len(os.sched_getaffinity(0)), "os.cpu_count", os.cpu_count())
+import os
+print("cpus", len(os.sched_getaffinity(0)))
 PY
 start=$(date +%s)
-python -m eval.test.scenegen --make-train 2>&1 | tail -5
+python -m eval.test.scenegen --make-train 2>&1 | tail -2
 echo "train generation took $(( $(date +%s) - start ))s"
 ./scripts/download.sh --offline
 start=$(date +%s)
-python -m eval.test.evaluate --smoke --submissions-dir hardening/submissions \
-  --output tmp/smoke/scores.json --details tmp/smoke/details.json --save-predictions tmp/smoke/preds 2>&1 | tee tmp/smoke/smoke.log
-echo "smoke took $(( $(date +%s) - start ))s"
+./scripts/evaluate_train.sh 2>&1 | tee hardening/results/evaluate_train.log
+echo "evaluate_train took $(( $(date +%s) - start ))s"
 start=$(date +%s)
-python -m eval.train.evaluate --details tmp/smoke/train_details.json --save-predictions tmp/smoke/train_preds 2>&1 | tee tmp/smoke/train.log
-echo "train evaluation took $(( $(date +%s) - start ))s"
+./scripts/evaluate_test.sh 2>&1 | tee hardening/results/evaluate_test.log
+echo "evaluate_test took $(( $(date +%s) - start ))s"
+cp scoring/scores_test.json scoring/scores.json
+start=$(date +%s)
+python -m eval.test.evaluate --submissions-dir hardening/submissions \
+  --output hardening/results/scores_test_audit.json --details hardening/results/details_test_audit.json \
+  --save-predictions hardening/results/test_predictions 2>&1 | tee hardening/results/audit_test.log
+echo "audit took $(( $(date +%s) - start ))s"
+python hardening/analyze.py --scores hardening/results/scores_test_audit.json \
+  --details hardening/results/details_test_audit.json --out hardening/results/summary.json \
+  2>&1 | tee hardening/results/summary.md

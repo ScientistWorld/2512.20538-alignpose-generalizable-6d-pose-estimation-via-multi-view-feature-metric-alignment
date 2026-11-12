@@ -17,6 +17,7 @@ Pipeline (paper Sec. 3 and App. A):
      [0, 1]); a second NMS on the refined poses removes converged duplicates.
 
 Usage:  python -m method.alignpose --input-dir INPUTS --output predictions.json
+(420 x 420 perspective crops, DINOv2-S layer 9, PCA 128, 40 onboarding templates)
 """
 
 from __future__ import annotations
@@ -369,7 +370,7 @@ def parse_args(argv=None):
     p.add_argument("--features", choices=["dino", "pixels"], default="dino")
     p.add_argument("--model-dir", default=DEFAULT_MODEL_DIR)
     p.add_argument("--layer", type=int, default=9)
-    p.add_argument("--crop", type=int, default=224)
+    p.add_argument("--crop", type=int, default=420)
     p.add_argument("--pad", type=float, default=1.4)
     p.add_argument("--pca-dim", type=int, default=128)
     p.add_argument("--n-templates", type=int, default=40)

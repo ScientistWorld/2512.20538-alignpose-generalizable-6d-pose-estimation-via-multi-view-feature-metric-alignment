@@ -33,6 +33,8 @@ MESH_SPACING = 0.015
 EVAL_VERTICES = 1500
 VISIB_MIN = 0.1
 JPEG_QUALITY = 90
+DET_MAX = 0.92
+OBJ_BIAS_FRACTION = 0.6
 
 DATASETS = ("textureless_clutter", "textured_household", "reflective_industrial")
 SHORT = {"textureless_clutter": "tl", "textured_household": "tx", "reflective_industrial": "ri"}
@@ -48,17 +50,17 @@ CONFIG = {
     "textureless_clutter": dict(
         appearance="plain", grayscale=False, n_targets=3, n_distractors=(3, 5), plane="cloth",
         sigma_2d=0.03, sigma_depth_view=0.03, sigma_depth_det=0.04, sigma_rot_deg=6.0, p_gross=0.2,
-        det_base=0.3, fp_rate=1.2, n_hyp=3, light=(0.55, 0.85), ambient=(0.25, 0.40),
+        det_base=0.15, fp_rate=1.2, n_hyp=3, light=(0.55, 0.85), ambient=(0.25, 0.40),
     ),
     "textured_household": dict(
         appearance="rich", grayscale=False, n_targets=3, n_distractors=(1, 3), plane="wood",
         sigma_2d=0.025, sigma_depth_view=0.025, sigma_depth_det=0.035, sigma_rot_deg=4.5, p_gross=0.12,
-        det_base=0.4, fp_rate=0.7, n_hyp=3, light=(0.50, 0.80), ambient=(0.30, 0.45),
+        det_base=0.25, fp_rate=0.7, n_hyp=3, light=(0.50, 0.80), ambient=(0.30, 0.45),
     ),
     "reflective_industrial": dict(
         appearance="metal", grayscale=True, n_targets=3, n_distractors=(2, 4), plane="dark",
         sigma_2d=0.035, sigma_depth_view=0.035, sigma_depth_det=0.05, sigma_rot_deg=7.0, p_gross=0.25,
-        det_base=0.25, fp_rate=1.0, n_hyp=3, light=(0.70, 1.00), ambient=(0.15, 0.30),
+        det_base=0.12, fp_rate=1.0, n_hyp=3, light=(0.70, 1.00), ambient=(0.15, 0.30),
     ),
 }
 
@@ -539,7 +541,7 @@ def project_points(pts_w, cam):
     return np.stack([k[0, 0] * xc[:, 0] / z + k[0, 2], k[1, 1] * xc[:, 1] / z + k[1, 2]], 1), z
 
 
-def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, objects, depth_bias):
+def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, objects, depth_bias, obj_bias):
     k = cam["K"]
     cands = []
     det_id = 0
@@ -549,7 +551,7 @@ def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, object
         if alone_px[j] < 60 or v < VISIB_MIN:
             continue
         visible_targets.append(j)
-        p_det = min(0.97, cfg["det_base"] + (1.0 - cfg["det_base"]) * v)
+        p_det = cfg["det_base"] + (DET_MAX - cfg["det_base"]) * v ** 1.5
         if rng.random() > p_det:
             continue
         obj = objects[tg["obj_id"]]
@@ -568,11 +570,12 @@ def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, object
             du = du_det + rng.normal(0.0, 0.25 * cfg["sigma_2d"] * size_px, 2)
             dz = dz_det + rng.normal(0.0, 0.25 * cfg["sigma_depth_det"])
             w = w_det + rng.normal(0.0, 0.4 * srot, 3)
-            r_est = so3_exp(w) @ r_co
+            r_bias = so3_exp(obj_bias[j])
+            r_est = so3_exp(w) @ r_co @ r_bias
             if rng.random() < cfg["p_gross"]:
                 axis = np.eye(3)[int(rng.integers(3))]
                 ang = float(rng.choice([math.pi / 2, math.pi, -math.pi / 2]))
-                r_est = so3_exp(w) @ r_co @ so3_exp(axis * ang)
+                r_est = so3_exp(w) @ r_co @ r_bias @ so3_exp(axis * ang)
             z_new = max(0.05, z * (1.0 + dz))
             ray = np.array([(u0 + du[0] - k[0, 2]) / k[0, 0], (v0 + du[1] - k[1, 2]) / k[1, 1], 1.0])
             t_est = ray * z_new
@@ -654,6 +657,10 @@ def generate_scene(task):
         cams.append(dict(K=kmat, R_CW=r_cw, t_CW=t_cw))
     targets = [dict(obj_id=e["obj_id"], R=e["R"], t=e["t"]) for e in entities if e["kind"] == "target"]
     target_ent = [i for i, e in enumerate(entities) if e["kind"] == "target"]
+    # single-view estimators err consistently on a given object (shape/template
+    # ambiguity): an orientation bias in the object frame shared by every view
+    srot0 = math.radians(cfg["sigma_rot_deg"])
+    obj_bias = [rng.normal(0.0, OBJ_BIAS_FRACTION * srot0, 3) for _ in targets]
     scene_dir = Path(out_dir) / "scenes" / scene_id
     scene_dir.mkdir(parents=True, exist_ok=True)
     views_json = []
@@ -670,7 +677,7 @@ def generate_scene(task):
             visib.append(0.0 if n_alone == 0 else n_vis / n_alone)
         visib_all.append(visib)
         depth_bias = rng.normal(0.0, cfg["sigma_depth_view"])
-        cands = simulate_candidates(rng, cfg, cam, targets, visib, alone, library, objects, depth_bias)
+        cands = simulate_candidates(rng, cfg, cam, targets, visib, alone, library, objects, depth_bias, obj_bias)
         Image.fromarray(img).save(scene_dir / f"view_{v}.jpg", quality=JPEG_QUALITY)
         views_json.append({
             "view_id": v,
