@@ -1,0 +1,1161 @@
+{
+  "reference": {
+    "AR": 94.44444444444446,
+    "AP": 100.0,
+    "complete_prediction_rate": 100.0,
+    "candidate_add_gain_pct": 1.949338183603883,
+    "exact_pose_copy_rate": 0.0,
+    "mean_add_error": 0.028981406193926248,
+    "median_translation_error": 0.016069599494184704,
+    "median_rotation_error_deg": 6.1742488197648475,
+    "mean_final_candidates": 1.0,
+    "num_views": 4.0,
+    "uses_depth_sensor": 0.0,
+    "object_specific_training": 0.0,
+    "uses_dinov2_features": 1.0
+  },
+  "formula": "sum(weight * abs(coefficient) * direction * (value-reference)/population_std)",
+  "cohort_note": "Only measured tless experiment contributes; other experiments are absent. Unseen future cohort variances are unknown.",
+  "cohorts": {
+    "all_audit_attempts": {
+      "members": [
+        "honest_average_all",
+        "honest_average_top",
+        "honest_denser",
+        "honest_depth_robust_fix",
+        "honest_exhaustive_candidates",
+        "reference_seed0",
+        "reference_seed1",
+        "reference_seed2",
+        "shortcut_confidence",
+        "shortcut_constant",
+        "shortcut_duplicate_flood",
+        "shortcut_empty",
+        "shortcut_generator_replay",
+        "shortcut_invalid_values",
+        "shortcut_label_copy",
+        "shortcut_label_jitter",
+        "shortcut_malformed",
+        "shortcut_move_ground_truth",
+        "shortcut_omit_method",
+        "shortcut_palette_bruteforce",
+        "shortcut_poison_candidates",
+        "shortcut_replace_candidates",
+        "shortcut_resource_fields",
+        "shortcut_unlisted_method",
+        "shortcut_write_scores",
+        "weaker_no_refinement",
+        "supplied_baseline"
+      ],
+      "population_std": {
+        "AR": 29.7847501971608,
+        "AP": 31.793119839609993,
+        "complete_prediction_rate": 0.0,
+        "candidate_add_gain_pct": 23915.37168950225,
+        "exact_pose_copy_rate": 19.982631347136333,
+        "mean_add_error": 0.08765170655582556,
+        "median_translation_error": 0.01460284109213036,
+        "median_rotation_error_deg": 31.211912990105134,
+        "mean_final_candidates": 199826.60887884986,
+        "num_views": 199827.1127766172,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.4982608642958916
+      }
+    },
+    "scientific_controls": {
+      "members": [
+        "honest_average_all",
+        "honest_average_top",
+        "honest_denser",
+        "honest_depth_robust_fix",
+        "honest_exhaustive_candidates",
+        "reference_seed0",
+        "reference_seed1",
+        "reference_seed2",
+        "weaker_no_refinement",
+        "supplied_baseline"
+      ],
+      "population_std": {
+        "AR": 22.333056935824203,
+        "AP": 26.666666666666668,
+        "complete_prediction_rate": 0.0,
+        "candidate_add_gain_pct": 2.968141176708807,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.02530677619437412,
+        "median_translation_error": 0.013806732503297146,
+        "median_rotation_error_deg": 4.535361565599148,
+        "mean_final_candidates": 3.3000000000000003,
+        "num_views": 0.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.5
+      }
+    }
+  },
+  "attempts": {
+    "honest_average_all": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 2.093715832527202,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.027750422682278137,
+        "median_translation_error": 0.024915663490506695,
+        "median_rotation_error_deg": 3.6051152529617316,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": 0.04809819215205266,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": 0.15272929587651143,
+      "pairwise_rank_delta": 2.0900000000000003
+    },
+    "honest_average_top": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.5326610768109845,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.03253405199449414,
+        "median_translation_error": 0.022877967217820223,
+        "median_rotation_error_deg": 5.248498195326469,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -0.056945020441455926,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": -0.101279789276301,
+      "pairwise_rank_delta": -0.9900000000000002
+    },
+    "honest_denser": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 2.052590696672578,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028101061195433433,
+        "median_translation_error": 0.011120905295690382,
+        "median_rotation_error_deg": 5.93451615334442,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.040333112173482184,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": 0.06246084881792764,
+      "pairwise_rank_delta": 1.4300000000000002
+    },
+    "honest_depth_robust_fix": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 2.414050876530204,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.025019202439315196,
+        "median_translation_error": 0.012843238987002546,
+        "median_rotation_error_deg": 5.206379480172739,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.03766473734388112,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": 0.12668000870429036,
+      "pairwise_rank_delta": 1.4300000000000002
+    },
+    "honest_exhaustive_candidates": {
+      "metrics": {
+        "AR": 77.77777777777777,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": -0.4008916676536724,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.04901978621366045,
+        "median_translation_error": 0.04124637163424551,
+        "median_rotation_error_deg": 11.473445445272752,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -0.5664128332932857,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": -1.1315156261200938,
+      "pairwise_rank_delta": -2.5300000000000007
+    },
+    "reference_seed0": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": 0.0,
+      "pairwise_rank_delta": 0.0
+    },
+    "reference_seed1": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": 0.0,
+      "pairwise_rank_delta": 0.0
+    },
+    "reference_seed2": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": 0.0,
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_confidence": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_constant": {
+      "metrics": {
+        "AR": 0.0,
+        "AP": 0.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": -46.39847230213661,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.4412014276173493,
+        "median_translation_error": 0.041839276564851174,
+        "median_rotation_error_deg": 117.27339085079561,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -4.74880637471422,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": -3.4100000000000006
+    },
+    "shortcut_duplicate_flood": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_empty": {
+      "metrics": {},
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [
+        "AR",
+        "AP",
+        "complete_prediction_rate",
+        "candidate_add_gain_pct",
+        "exact_pose_copy_rate",
+        "mean_add_error",
+        "median_translation_error",
+        "median_rotation_error_deg",
+        "mean_final_candidates",
+        "num_views",
+        "uses_depth_sensor",
+        "object_specific_training"
+      ],
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_generator_replay": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 5.348346270657732,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 1.0000000000010528e-06,
+        "median_translation_error": 1.000000000001e-06,
+        "median_rotation_error_deg": 0.0,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": 0.3181670247319506,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 2.5300000000000007
+    },
+    "shortcut_invalid_values": {
+      "metrics": {
+        "AR": 0.0,
+        "AP": 0.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": "nan",
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": "nan",
+        "median_translation_error": "nan",
+        "median_rotation_error_deg": 117.27339085079561,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -3.519488047557217,
+      "skipped_metrics": [
+        "candidate_add_gain_pct",
+        "mean_add_error",
+        "median_translation_error"
+      ],
+      "pairwise_rank_delta": -2.2
+    },
+    "shortcut_label_copy": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 5.348463557077539,
+        "exact_pose_copy_rate": 100.0,
+        "mean_add_error": 0.0,
+        "median_translation_error": 0.0,
+        "median_rotation_error_deg": 0.0,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -2.9846912498687015,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 1.2100000000000002
+    },
+    "shortcut_label_jitter": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 5.348346270657732,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 1.0000000000010528e-06,
+        "median_translation_error": 1.000000000001e-06,
+        "median_rotation_error_deg": 0.0,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": 0.3181670247319506,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 2.5300000000000007
+    },
+    "shortcut_malformed": {
+      "metrics": {},
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [
+        "AR",
+        "AP",
+        "complete_prediction_rate",
+        "candidate_add_gain_pct",
+        "exact_pose_copy_rate",
+        "mean_add_error",
+        "median_translation_error",
+        "median_rotation_error_deg",
+        "mean_final_candidates",
+        "num_views",
+        "uses_depth_sensor",
+        "object_specific_training"
+      ],
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_move_ground_truth": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 44.91462519024128,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 9.999999999868282e-07,
+        "median_translation_error": 1e-06,
+        "median_rotation_error_deg": 0.0,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": 0.3186219926431398,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 2.5300000000000007
+    },
+    "shortcut_omit_method": {
+      "metrics": {},
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [
+        "AR",
+        "AP",
+        "complete_prediction_rate",
+        "candidate_add_gain_pct",
+        "exact_pose_copy_rate",
+        "mean_add_error",
+        "median_translation_error",
+        "median_rotation_error_deg",
+        "mean_final_candidates",
+        "num_views",
+        "uses_depth_sensor",
+        "object_specific_training"
+      ],
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_palette_bruteforce": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 4.836790641921328,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.004362593009453601,
+        "median_translation_error": 0.003895865642690364,
+        "median_rotation_error_deg": 0.3180468028010364,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": 0.27675377201478235,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 2.5300000000000007
+    },
+    "shortcut_poison_candidates": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 117273.47493276584,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 1.3484912531242923,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 0.55
+    },
+    "shortcut_replace_candidates": {
+      "metrics": {
+        "AR": 100.0,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 5.348346270652363,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 1.0000000457799543e-06,
+        "median_translation_error": 9.999999828029566e-07,
+        "median_rotation_error_deg": 0.00015079199223178816,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": 0.31816649329644725,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 2.5300000000000007
+    },
+    "shortcut_resource_fields": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": -1000000.0,
+        "num_views": -1000000.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.41285840818052605,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 0.16500000000000004
+    },
+    "shortcut_unlisted_method": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 0.0
+    },
+    "shortcut_write_scores": {
+      "metrics": {
+        "AR": 94.44444444444446,
+        "AP": 100.0,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": 1.949338183603883,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.028981406193926248,
+        "median_translation_error": 0.016069599494184704,
+        "median_rotation_error_deg": 6.1742488197648475,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 1.0
+      },
+      "all_audit_attempts_rank_delta": 0.0,
+      "skipped_metrics": [],
+      "pairwise_rank_delta": 0.0
+    },
+    "weaker_no_refinement": {
+      "metrics": {
+        "AR": 38.88888888888889,
+        "AP": 33.33333333333333,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": -5.4960848802220115,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.09246209795724741,
+        "median_translation_error": 0.048059794391174,
+        "median_rotation_error_deg": 16.532512915830907,
+        "mean_final_candidates": 1.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -2.385409346349933,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": -4.215954903941806,
+      "pairwise_rank_delta": -3.4100000000000006
+    },
+    "supplied_baseline": {
+      "metrics": {
+        "AR": 38.88888888888889,
+        "AP": 33.33333333333333,
+        "complete_prediction_rate": 100.0,
+        "candidate_add_gain_pct": -5.4960848802220115,
+        "exact_pose_copy_rate": 0.0,
+        "mean_add_error": 0.09246209795724741,
+        "median_translation_error": 0.048059794391174,
+        "median_rotation_error_deg": 16.532512915830907,
+        "mean_final_candidates": 12.0,
+        "num_views": 4.0,
+        "uses_depth_sensor": 0.0,
+        "object_specific_training": 0.0,
+        "uses_dinov2_features": 0.0
+      },
+      "all_audit_attempts_rank_delta": -2.385412373974749,
+      "skipped_metrics": [],
+      "scientific_controls_rank_delta": -4.399288237275139,
+      "pairwise_rank_delta": -3.5200000000000005
+    }
+  },
+  "statuses": {
+    "honest_average_all": {
+      "case": "honest_average_all",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.8487708568573
+    },
+    "honest_average_top": {
+      "case": "honest_average_top",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.7545957565307617
+    },
+    "honest_denser": {
+      "case": "honest_denser",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 88.48030686378479
+    },
+    "honest_depth_robust_fix": {
+      "case": "honest_depth_robust_fix",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 61.353835105895996
+    },
+    "honest_exhaustive_candidates": {
+      "case": "honest_exhaustive_candidates",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 6.535475969314575
+    },
+    "reference_seed0": {
+      "case": "reference_seed0",
+      "seed": 0,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 55.964221477508545
+    },
+    "reference_seed1": {
+      "case": "reference_seed1",
+      "seed": 1,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 46.86325168609619
+    },
+    "reference_seed2": {
+      "case": "reference_seed2",
+      "seed": 2,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 47.62639260292053
+    },
+    "shortcut_confidence": {
+      "case": "shortcut_confidence",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.7150354385375977
+    },
+    "shortcut_constant": {
+      "case": "shortcut_constant",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.786747455596924
+    },
+    "shortcut_duplicate_flood": {
+      "case": "shortcut_duplicate_flood",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.811835289001465
+    },
+    "shortcut_empty": {
+      "case": "shortcut_empty",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 1,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 1,
+      "test_wrote_scores": false,
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {
+        "train": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/user/eval/train/evaluate.py\", line 174, in <module>\n    main()\n  File \"/home/user/eval/train/evaluate.py\", line 161, in main\n    results = {\n              ^\n  File \"/home/user/eval/train/evaluate.py\", line 162, in <dictcomp>\n    method_name: evaluate_one(dataset, scenes, pred_path)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/eval/train/evaluate.py\", line 129, in evaluate_one\n    raise ValueError(f\"{pred_path} has no predictions for the {SLICE_NAME} slice\")\nValueError: outputs/alignpose_predictions.json has no predictions for the train slice\n",
+        "test": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/user/eval/test/evaluate.py\", line 201, in <module>\n    main()\n  File \"/home/user/eval/test/evaluate.py\", line 188, in main\n    results = {\n              ^\n  File \"/home/user/eval/test/evaluate.py\", line 189, in <dictcomp>\n    method_name: evaluate_one(dataset, scenes, discovered_methods[method_name])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/eval/test/evaluate.py\", line 142, in evaluate_one\n    raise ValueError(f\"{pred_path} has no predictions for the {SLICE_NAME} slice\")\nValueError: outputs/alignpose_predictions.json has no predictions for the test slice\n"
+      },
+      "elapsed_seconds": 2.9168789386749268
+    },
+    "shortcut_generator_replay": {
+      "case": "shortcut_generator_replay",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 3.7381510734558105
+    },
+    "shortcut_invalid_values": {
+      "case": "shortcut_invalid_values",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.756227493286133
+    },
+    "shortcut_label_copy": {
+      "case": "shortcut_label_copy",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 3.1496715545654297
+    },
+    "shortcut_label_jitter": {
+      "case": "shortcut_label_jitter",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 3.2699272632598877
+    },
+    "shortcut_malformed": {
+      "case": "shortcut_malformed",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 1,
+      "test_wrote_scores": false,
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {
+        "test": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/user/eval/test/evaluate.py\", line 201, in <module>\n    main()\n  File \"/home/user/eval/test/evaluate.py\", line 188, in main\n    results = {\n              ^\n  File \"/home/user/eval/test/evaluate.py\", line 189, in <dictcomp>\n    method_name: evaluate_one(dataset, scenes, discovered_methods[method_name])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/eval/test/evaluate.py\", line 130, in evaluate_one\n    pred = pose(pred_entry[\"T_WO\"])\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/eval/test/evaluate.py\", line 27, in pose\n    \"R\": np.asarray(raw[\"R\"], dtype=np.float64),\n                    ~~~^^^^^\nTypeError: 'NoneType' object is not subscriptable\n"
+      },
+      "elapsed_seconds": 2.801682949066162
+    },
+    "shortcut_move_ground_truth": {
+      "case": "shortcut_move_ground_truth",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 4.820864915847778
+    },
+    "shortcut_omit_method": {
+      "case": "shortcut_omit_method",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.7732880115509033
+    },
+    "shortcut_palette_bruteforce": {
+      "case": "shortcut_palette_bruteforce",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 3.087886333465576
+    },
+    "shortcut_poison_candidates": {
+      "case": "shortcut_poison_candidates",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 4.843797206878662
+    },
+    "shortcut_replace_candidates": {
+      "case": "shortcut_replace_candidates",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 5.134905576705933
+    },
+    "shortcut_resource_fields": {
+      "case": "shortcut_resource_fields",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.7665905952453613
+    },
+    "shortcut_unlisted_method": {
+      "case": "shortcut_unlisted_method",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json",
+        "unlisted_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.8008904457092285
+    },
+    "shortcut_write_scores": {
+      "case": "shortcut_write_scores",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.799496650695801
+    },
+    "weaker_no_refinement": {
+      "case": "weaker_no_refinement",
+      "seed": null,
+      "method_exit_code": 0,
+      "train_exit_code": 0,
+      "prediction_files": [
+        "alignpose_predictions.json",
+        "baseline_predictions.json"
+      ],
+      "test_exit_code": 0,
+      "test_wrote_scores": true,
+      "returned_methods": [
+        "alignpose",
+        "single_view_candidate"
+      ],
+      "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+      "error_excerpts": {},
+      "elapsed_seconds": 2.7556405067443848
+    }
+  },
+  "seed_metric_spread": {
+    "AR": 0.0,
+    "AP": 0.0,
+    "complete_prediction_rate": 0.0,
+    "candidate_add_gain_pct": 0.0,
+    "exact_pose_copy_rate": 0.0,
+    "mean_add_error": 0.0,
+    "median_translation_error": 0.0,
+    "median_rotation_error_deg": 0.0,
+    "mean_final_candidates": 0.0,
+    "num_views": 0.0,
+    "uses_depth_sensor": 0.0,
+    "object_specific_training": 0.0,
+    "uses_dinov2_features": 0.0
+  },
+  "seed_rank_spread": {
+    "all_audit_attempts": 0.0,
+    "scientific_controls": 0.0
+  }
+}

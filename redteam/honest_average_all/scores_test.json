@@ -1,0 +1,38 @@
+{
+  "experiments": {
+    "tless_coop_ablation": {
+      "results": {
+        "alignpose": {
+          "AR": 100.0,
+          "AP": 100.0,
+          "complete_prediction_rate": 100.0,
+          "candidate_add_gain_pct": 2.093715832527202,
+          "exact_pose_copy_rate": 0.0,
+          "mean_add_error": 0.027750422682278137,
+          "median_translation_error": 0.024915663490506695,
+          "median_rotation_error_deg": 3.6051152529617316,
+          "mean_final_candidates": 1.0,
+          "num_views": 4.0,
+          "uses_depth_sensor": 0.0,
+          "object_specific_training": 0.0,
+          "uses_dinov2_features": 0.0
+        },
+        "single_view_candidate": {
+          "AR": 38.88888888888889,
+          "AP": 33.33333333333333,
+          "complete_prediction_rate": 100.0,
+          "candidate_add_gain_pct": -5.4960848802220115,
+          "exact_pose_copy_rate": 0.0,
+          "mean_add_error": 0.09246209795724741,
+          "median_translation_error": 0.048059794391174,
+          "median_rotation_error_deg": 16.532512915830907,
+          "mean_final_candidates": 12.0,
+          "num_views": 4.0,
+          "uses_depth_sensor": 0.0,
+          "object_specific_training": 0.0,
+          "uses_dinov2_features": 0.0
+        }
+      }
+    }
+  }
+}

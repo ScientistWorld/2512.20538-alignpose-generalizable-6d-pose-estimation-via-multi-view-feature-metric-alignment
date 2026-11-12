@@ -1,0 +1,18 @@
+{
+  "case": "shortcut_empty",
+  "seed": null,
+  "method_exit_code": 0,
+  "train_exit_code": 1,
+  "prediction_files": [
+    "alignpose_predictions.json",
+    "baseline_predictions.json"
+  ],
+  "test_exit_code": 1,
+  "test_wrote_scores": false,
+  "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+  "error_excerpts": {
+    "train": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/user/eval/train/evaluate.py\", line 174, in <module>\n    main()\n  File \"/home/user/eval/train/evaluate.py\", line 161, in main\n    results = {\n              ^\n  File \"/home/user/eval/train/evaluate.py\", line 162, in <dictcomp>\n    method_name: evaluate_one(dataset, scenes, pred_path)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/eval/train/evaluate.py\", line 129, in evaluate_one\n    raise ValueError(f\"{pred_path} has no predictions for the {SLICE_NAME} slice\")\nValueError: outputs/alignpose_predictions.json has no predictions for the train slice\n",
+    "test": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/user/eval/test/evaluate.py\", line 201, in <module>\n    main()\n  File \"/home/user/eval/test/evaluate.py\", line 188, in main\n    results = {\n              ^\n  File \"/home/user/eval/test/evaluate.py\", line 189, in <dictcomp>\n    method_name: evaluate_one(dataset, scenes, discovered_methods[method_name])\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/eval/test/evaluate.py\", line 142, in evaluate_one\n    raise ValueError(f\"{pred_path} has no predictions for the {SLICE_NAME} slice\")\nValueError: outputs/alignpose_predictions.json has no predictions for the test slice\n"
+  },
+  "elapsed_seconds": 2.9168789386749268
+}

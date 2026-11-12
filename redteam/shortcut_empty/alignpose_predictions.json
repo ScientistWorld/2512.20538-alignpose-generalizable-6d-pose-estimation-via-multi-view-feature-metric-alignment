@@ -1,0 +1,9 @@
+{
+  "metadata": {
+    "num_views": 4,
+    "uses_depth_sensor": false,
+    "object_specific_training": false,
+    "uses_dinov2_features": false
+  },
+  "predictions": []
+}

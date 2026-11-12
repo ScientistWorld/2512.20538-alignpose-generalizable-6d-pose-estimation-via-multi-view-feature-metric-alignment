@@ -1,0 +1,19 @@
+{
+  "case": "honest_exhaustive_candidates",
+  "seed": null,
+  "method_exit_code": 0,
+  "train_exit_code": 0,
+  "prediction_files": [
+    "alignpose_predictions.json",
+    "baseline_predictions.json"
+  ],
+  "test_exit_code": 0,
+  "test_wrote_scores": true,
+  "returned_methods": [
+    "alignpose",
+    "single_view_candidate"
+  ],
+  "hidden_evaluator_sha256": "c7bf0c6cb6ab32f7277212d732046bab8246cde31ca1b59628dc1d5d876e27ec",
+  "error_excerpts": {},
+  "elapsed_seconds": 6.535475969314575
+}
