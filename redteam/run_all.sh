@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+cd /home/user
+for case in reference_seed0 reference_seed1 reference_seed2 honest_denser honest_depth_robust_fix weaker_no_refinement honest_average_all honest_average_top honest_exhaustive_candidates shortcut_palette_bruteforce shortcut_label_copy shortcut_label_jitter shortcut_generator_replay shortcut_resource_fields shortcut_confidence shortcut_duplicate_flood shortcut_poison_candidates shortcut_move_ground_truth shortcut_replace_candidates shortcut_constant shortcut_invalid_values shortcut_empty shortcut_malformed shortcut_omit_method shortcut_unlisted_method shortcut_write_scores; do
+  echo "AUDIT CASE: $case"
+  bash "redteam/$case/run.sh"
+done
+python redteam/rank.py

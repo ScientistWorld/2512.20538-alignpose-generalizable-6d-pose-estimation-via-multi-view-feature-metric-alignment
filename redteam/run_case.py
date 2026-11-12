@@ -90,6 +90,7 @@ def main():
             record['returned_methods'] = sorted(payload['experiments']['tless_coop_ablation']['results'])
         record['hidden_evaluator_sha256'] = hashlib.sha256((ROOT / 'eval/test/evaluate.py').read_bytes()).hexdigest()
     finally:
+        record['error_excerpts'] = {name: (folder / (name + '.log')).read_text()[-3000:] for name in ['method', 'train', 'test'] if (folder / (name + '.log')).exists() and record.get(name + '_exit_code', 0)}
         record['elapsed_seconds'] = time.time() - start
         (folder / 'status.json').write_text(json.dumps(record, indent=2))
         shutil.rmtree(ROOT / 'outputs')
