@@ -1,12 +1,8 @@
 #!/bin/bash
-# Evaluate prediction artifacts and write scoring/scores.json.
-# This script imports only eval/ code and reads outputs produced by methods.
-
+# Convenience wrapper: train evaluation, hidden-test evaluation, and a copy of
+# the test scores as the canonical scoring/scores.json.
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
-
-python -m eval.pose_metrics \
-  --dataset data/synthetic_benchmark.json \
-  --outputs-dir outputs \
-  --output scoring/scores.json
+./scripts/evaluate_train.sh
+./scripts/evaluate_test.sh
+cp scoring/scores_test.json scoring/scores.json

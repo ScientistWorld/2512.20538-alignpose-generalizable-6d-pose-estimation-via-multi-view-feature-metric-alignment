@@ -1,11 +1,11 @@
 #!/bin/bash
-# Run the unrefined single-view candidate baseline.
-
+# Run the image-free baselines on the visible train inputs.
+# Usage: scripts/baseline.sh [INPUT_DIR] [OUTPUT_DIR]
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
-mkdir -p outputs
-
-python -m baseline.single_view \
-  --dataset data/synthetic_inputs.json \
-  --output outputs/baseline_predictions.json
+input_dir="${1:-data/train}"
+out_dir="${2:-outputs}"
+mkdir -p "$out_dir"
+for name in single_view_candidate multiview_aggregation multiview_aggregation_nms multiview_consensus; do
+  bash "submissions/${name}.sh" "$input_dir" "$out_dir/${name}_train_predictions.json"
+done

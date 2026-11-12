@@ -1,7 +1,13 @@
-"""Visible train-slice scorer for pose prediction artifacts.
+"""Visible train-split evaluation.
 
-This evaluator is method-agnostic: it reads generated prediction JSON files
-from an outputs directory and never imports method code.
+Run with no arguments (``bash scripts/evaluate_train.sh``).  Every submission
+found on disk (``submissions/*.sh``) is run on its own fresh copy of the visible
+train inputs (``data/train``) as ``bash submissions/<name>.sh INPUT_DIR OUTPUT_JSON``.
+The raw detections are validated and scored against the train labels in
+``eval/train/train_gt.json``; results go to ``scoring/scores_train.json``.
+
+The protocol, validity rules and metrics are identical to the hidden test; the
+train split uses different scenes and a disjoint object library.
 """
 
 from __future__ import annotations
@@ -9,166 +15,127 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
 from pathlib import Path
 
-import numpy as np
+from eval.train import scoring
+
+ROOT = Path(__file__).resolve().parents[2]
+EXPERIMENTS = ("textureless_clutter", "textured_household", "reflective_industrial")
+METHOD_TIMEOUT_S = 4 * 3600
 
 
-EXPERIMENT_NAME = "tless_coop_ablation"
-SLICE_NAME = "train"
-KNOWN_METHOD_NAMES = {
-    "baseline_predictions": "single_view_candidate",
-    "alignpose_predictions": "alignpose",
-}
-
-
-def pose(raw):
-    return {
-        "R": np.asarray(raw["R"], dtype=np.float64),
-        "t": np.asarray(raw["t"], dtype=np.float64),
-    }
-
-
-def transform(points, transform_pose):
-    return points @ transform_pose["R"].T + transform_pose["t"][None, :]
-
-
-def add_error(points, pred, gt):
-    return float(np.mean(np.linalg.norm(transform(points, pred) - transform(points, gt), axis=1)))
-
-
-def best_candidate_add_error(points, scene):
-    gt = pose(scene["T_WO_gt"])
-    errors = []
-    for view in scene["views"]:
-        for candidate in view["candidates"]:
-            errors.append(add_error(points, pose(candidate["T_WO"]), gt))
-    if not errors:
-        return None
-    return min(errors)
-
-
-def rotation_error_deg(pred, gt):
-    rel = pred["R"] @ gt["R"].T
-    cosine = np.clip((np.trace(rel) - 1.0) / 2.0, -1.0, 1.0)
-    return float(np.degrees(np.arccos(cosine)))
-
-
-def select_scenes(dataset):
-    scenes = sorted(dataset["scenes"], key=lambda scene: scene["scene_id"])
-    selected = [scene for index, scene in enumerate(scenes) if index % 2 == 0]
-    if not selected:
-        raise ValueError("train slice is empty; dataset must contain at least one scene")
-    return selected
-
-
-def method_name_for(path):
-    stem = path.stem
-    if stem in KNOWN_METHOD_NAMES:
-        return KNOWN_METHOD_NAMES[stem]
-    if stem.endswith("_predictions"):
-        stem = stem[: -len("_predictions")]
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", stem).strip("_")
-    if not name:
-        raise ValueError(f"could not infer method name from {path}")
-    return name
-
-
-def discover_prediction_files(outputs_dir):
-    prediction_files = sorted(Path(outputs_dir).glob("*_predictions.json"))
-    methods = {}
-    for path in prediction_files:
-        name = method_name_for(path)
-        if name in methods:
-            raise ValueError(f"multiple prediction artifacts map to method '{name}'")
-        methods[name] = path
-    if not methods:
-        raise FileNotFoundError(f"no prediction artifacts found under {outputs_dir}")
-    return methods
-
-
-def evaluate_one(dataset, scenes, pred_path):
-    pred_data = json.loads(Path(pred_path).read_text())
-    metadata = pred_data.get("metadata", {})
-    preds = {entry["scene_id"]: entry for entry in pred_data["predictions"]}
-    points = np.asarray([point["xyz"] for point in dataset["object_model"]], dtype=np.float64)
-    diameter = float(np.linalg.norm(points.max(axis=0) - points.min(axis=0)))
-
-    add_errors = []
-    rotation_errors = []
-    translation_errors = []
-    nms_counts = []
-    candidate_gains = []
-    exact_copies = []
-    complete_count = 0
-    for scene in scenes:
-        gt = pose(scene["T_WO_gt"])
-        candidate_error = best_candidate_add_error(points, scene)
-        pred_entry = preds.get(scene["scene_id"])
-        if pred_entry is None:
-            add_errors.append(diameter)
-            rotation_errors.append(180.0)
-            translation_errors.append(diameter)
-            nms_counts.append(0.0)
-            if candidate_error is not None:
-                candidate_gains.append(100.0 * (candidate_error - diameter) / diameter)
-            exact_copies.append(0.0)
+def discover_submissions(sub_dir):
+    subs = {}
+    for path in sorted(Path(sub_dir).glob("*.sh")):
+        name = re.sub(r"[^A-Za-z0-9_.-]+", "_", path.stem).strip("_")
+        if not name or name.startswith("_"):
             continue
-        pred = pose(pred_entry["T_WO"])
-        scene_add_error = add_error(points, pred, gt)
-        add_errors.append(scene_add_error)
-        rotation_errors.append(rotation_error_deg(pred, gt))
-        translation_errors.append(float(np.linalg.norm(pred["t"] - gt["t"])))
-        nms_counts.append(float(pred_entry.get("num_after_final_nms", 1)))
-        if candidate_error is not None:
-            candidate_gains.append(100.0 * (candidate_error - scene_add_error) / diameter)
-        exact_copies.append(float(scene_add_error <= 1e-12))
-        complete_count += 1
+        if name in subs:
+            raise ValueError(f"two submissions map to the name {name!r}")
+        subs[name] = path.resolve()
+    return subs
 
-    if complete_count == 0:
-        raise ValueError(f"{pred_path} has no predictions for the {SLICE_NAME} slice")
 
-    add_arr = np.asarray(add_errors, dtype=np.float64)
-    thresholds = [0.05 * diameter, 0.10 * diameter, 0.15 * diameter]
-    recalls = [float(np.mean(add_arr < threshold)) for threshold in thresholds]
-    return {
-        "AR": 100.0 * float(np.mean(recalls)),
-        "AP": 100.0 * float(np.mean(add_arr < 0.10 * diameter)),
-        "complete_prediction_rate": 100.0 * complete_count / len(scenes),
-        "candidate_add_gain_pct": float(np.mean(candidate_gains)) if candidate_gains else 0.0,
-        "exact_pose_copy_rate": 100.0 * float(np.mean(exact_copies)),
-        "mean_add_error": float(np.mean(add_arr)),
-        "median_translation_error": float(np.median(translation_errors)),
-        "median_rotation_error_deg": float(np.median(rotation_errors)),
-        "mean_final_candidates": float(np.mean(nms_counts)),
-        "num_views": float(metadata.get("num_views", len(dataset["scenes"][0]["views"]))),
-        "uses_depth_sensor": float(bool(metadata.get("uses_depth_sensor", False))),
-        "object_specific_training": float(bool(metadata.get("object_specific_training", False))),
-        "uses_dinov2_features": float(bool(metadata.get("uses_dinov2_features", False))),
-    }
+def run_submission(script, input_dir, output_path, log_path):
+    start = time.time()
+    with open(log_path, "w") as log:
+        try:
+            proc = subprocess.run(["bash", str(script), str(input_dir), str(output_path)], cwd=str(ROOT),
+                                  stdout=log, stderr=subprocess.STDOUT, timeout=METHOD_TIMEOUT_S)
+            code = proc.returncode
+        except subprocess.TimeoutExpired:
+            code = "timeout"
+    return code, time.time() - start
+
+
+def tail(path, n=25):
+    try:
+        lines = Path(path).read_text(errors="replace").splitlines()
+    except OSError:
+        return ""
+    return "\n".join(lines[-n:])
+
+
+def score_submission(prepared, output_path, exit_code):
+    if exit_code != 0:
+        return None, f"submission exited with {exit_code}"
+    if not Path(output_path).is_file():
+        return None, "submission wrote no output file"
+    try:
+        payload = json.loads(Path(output_path).read_text())
+    except (OSError, ValueError) as exc:
+        return None, f"output is not valid JSON: {exc}"
+    try:
+        dets = scoring.parse_detections(payload, prepared["libraries"])
+    except scoring.InvalidSubmission as exc:
+        return None, f"invalid output: {exc}"
+    return {exp: scoring.score_dataset(prepared, exp, dets) for exp in EXPERIMENTS}, None
+
+
+def write_json(path, payload):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2))
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="data/synthetic_benchmark.json")
-    parser.add_argument("--outputs-dir", default="outputs")
-    parser.add_argument("--output", default="scoring/scores_train.json")
+    parser.add_argument("--inputs", default=str(ROOT / "data" / "train"))
+    parser.add_argument("--labels", default=str(ROOT / "eval" / "train" / "train_gt.json"))
+    parser.add_argument("--submissions-dir", default=str(ROOT / "submissions"))
+    parser.add_argument("--output", default=str(ROOT / "scoring" / "scores_train.json"))
+    parser.add_argument("--details", default=None, help="optional per-target diagnostics")
+    parser.add_argument("--save-predictions", default=None, help="optional directory to keep raw outputs and logs")
     args = parser.parse_args()
 
-    dataset = json.loads(Path(args.dataset).read_text())
-    scenes = select_scenes(dataset)
-    methods = discover_prediction_files(args.outputs_dir)
-    results = {
-        method_name: evaluate_one(dataset, scenes, pred_path)
-        for method_name, pred_path in sorted(methods.items())
-    }
-
-    payload = {"experiments": {EXPERIMENT_NAME: {"results": results}}}
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, indent=2))
-    print(json.dumps(payload, indent=2))
+    subs = discover_submissions(args.submissions_dir)
+    if not subs:
+        raise SystemExit(f"no submissions found under {args.submissions_dir}")
+    prepared = scoring.prepare_gt(json.loads(Path(args.labels).read_text()))
+    work = Path(tempfile.mkdtemp(prefix="mvpose_train_"))
+    try:
+        scores = {exp: {} for exp in EXPERIMENTS}
+        details = {}
+        for name, script in subs.items():
+            inp = work / f"inputs_{name}"
+            shutil.copytree(args.inputs, inp)
+            out = work / f"pred_{name}.json"
+            log = work / f"log_{name}.txt"
+            code, elapsed = run_submission(script, inp, out, log)
+            results, error = score_submission(prepared, out, code)
+            if args.save_predictions:
+                keep = Path(args.save_predictions)
+                keep.mkdir(parents=True, exist_ok=True)
+                if out.is_file():
+                    shutil.copy(out, keep / f"{name}.json")
+                shutil.copy(log, keep / f"{name}.log")
+            shutil.rmtree(inp, ignore_errors=True)
+            if results is None:
+                print(f"[train] {name}: FAILED ({error}); scored with worst values\n{tail(log)}", flush=True)
+                for exp in EXPERIMENTS:
+                    scores[exp][name] = scoring.worst_metrics()
+                details[name] = {"status": "failed", "error": error, "seconds": elapsed}
+            else:
+                for exp in EXPERIMENTS:
+                    scores[exp][name] = results[exp][0]
+                details[name] = {"status": "ok", "seconds": elapsed,
+                                 "experiments": {exp: results[exp][1] for exp in EXPERIMENTS}}
+                summary = ", ".join(f"{exp}: AR {results[exp][0]['AR']:.2f} AP {results[exp][0]['AP']:.2f}"
+                                    for exp in EXPERIMENTS)
+                print(f"[train] {name}: {summary} ({elapsed:.0f}s)\n{tail(log, 5)}", flush=True)
+        payload = {"experiments": {exp: {"results": scores[exp]} for exp in EXPERIMENTS}}
+        write_json(args.output, payload)
+        if args.details:
+            write_json(args.details, details)
+        print(json.dumps(payload, indent=2))
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

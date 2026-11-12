@@ -1,7 +1,13 @@
 #!/bin/bash
-# Estimated download size: ~85 MB. Disk usage: ~100 MB including generated data.
-# Downloads a local DINOv2-S feature extractor and generates the deterministic
-# synthetic multi-view benchmark used by the reduced reproduction.
+# Estimated download size: ~90 MB (DINOv2-S weights). Disk usage: ~100 MB.
+# Fetches the frozen DINOv2-S feature extractor used by the reference method
+# into data/downloads/. Idempotent: existing files are kept.
+# The visible train split (data/train/) and its labels (eval/train/) are small
+# and tracked in git; the hidden test split is generated at test time by
+# eval/test/, so no dataset download is needed.
+#
+# Usage: scripts/download.sh            # fetch missing files
+#        scripts/download.sh --offline  # only verify (compute nodes have no internet)
 
 set -euo pipefail
 
@@ -17,34 +23,19 @@ model_dir="data/downloads/dinov2-small"
 base_url="https://huggingface.co/facebook/dinov2-small/resolve/main"
 mkdir -p "$model_dir"
 for file in config.json preprocessor_config.json model.safetensors; do
-  if [ ! -f "$model_dir/$file" ]; then
+  if [ ! -s "$model_dir/$file" ]; then
     if [ "$offline" = true ]; then
-      echo "Missing $model_dir/$file. Run scripts/download.sh on an internet-enabled node before submitting." >&2
+      echo "Missing $model_dir/$file. Run scripts/download.sh on an internet-enabled node first." >&2
       exit 1
     fi
-    curl -L --fail "$base_url/$file" -o "$model_dir/$file"
+    curl -L --fail --retry 3 "$base_url/$file" -o "$model_dir/$file"
   fi
 done
 
-if [ ! -f data/synthetic_benchmark.json ] || ! python - <<'PY'
-import json
-from pathlib import Path
-data = json.loads(Path("data/synthetic_benchmark.json").read_text())
-raise SystemExit(0 if data["scenes"][0]["views"][0]["candidates"][0].get("T_CO") else 1)
-PY
-then
-  python data/synthetic_alignpose.py --output data/synthetic_benchmark.json --scenes 12 --views 4
-fi
-
-if [ ! -f data/synthetic_inputs.json ] || python - <<'PY'
-import json
-from pathlib import Path
-data = json.loads(Path("data/synthetic_inputs.json").read_text())
-candidate = data["scenes"][0]["views"][0]["candidates"][0]
-raise SystemExit(0 if candidate.get("T_WO") else 1)
-PY
-then
-  python data/make_method_inputs.py \
-    --source data/synthetic_benchmark.json \
-    --output data/synthetic_inputs.json
-fi
+for f in data/train/index.json eval/train/train_gt.json; do
+  if [ ! -s "$f" ]; then
+    echo "Missing $f (tracked in git). Restore it with: git checkout -- $f" >&2
+    exit 1
+  fi
+done
+echo "download.sh: all assets present"

@@ -231,3 +231,6 @@ tmp/
 protocol.md
 *.egg-info
 core.[0-9]*
+# Hardening audit raw predictions (regenerable)
+hardening/results/test_predictions/
+hardening/results/train_predictions/

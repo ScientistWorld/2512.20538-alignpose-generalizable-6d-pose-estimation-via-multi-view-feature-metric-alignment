@@ -1,11 +1,7 @@
 #!/bin/bash
-# End-to-end reproduction script for the reduced AlignPose benchmark.
-
+# End-to-end reproduction: fetch weights, then score the reference and the
+# baselines on the visible train split and on the hidden test split.
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
-
 ./scripts/download.sh
-./scripts/baseline.sh
-./scripts/method.sh
 ./scripts/evaluate.sh
