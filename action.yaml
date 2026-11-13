@@ -1,8 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
+action: pending
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Resumable full hardening job (survives preemption): evaluate_train + evaluate_test (reference + baselines, 420px crops), then hidden-test audit of variants and shortcuts with paired bootstrap."
+notes: ""
