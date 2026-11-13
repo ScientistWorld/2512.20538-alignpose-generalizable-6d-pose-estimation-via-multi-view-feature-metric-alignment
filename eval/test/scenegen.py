@@ -47,21 +47,29 @@ TRAIN_SEED = 20_251_220
 TRAIN_SCENES_PER_DATASET = 24
 TRAIN_OBJECTS_PER_DATASET = 8
 
+# Simulated single-view candidates (per regime).  Depth errors are relative to
+# the camera distance (per view and per detection); the per-view detection
+# probability rises from det_base (barely visible) to det_max (fully visible).
+# Calibrated on a separate dev split (hardening/diag_calibration.py): with the
+# earlier depth errors (~5% of the distance) about half of the coarse poses lay
+# outside the convergence range of a local feature-metric refinement, unlike the
+# paper's MegaPose-refined candidate sources, and detections were found in 3-4
+# of 4 views for 85% of objects, the best case for candidate-only fusion.
 CONFIG = {
     "textureless_clutter": dict(
         appearance="plain", grayscale=False, n_targets=3, n_distractors=(3, 5), plane="cloth",
-        sigma_2d=0.03, sigma_depth_view=0.03, sigma_depth_det=0.04, sigma_rot_deg=6.0, p_gross=0.2,
-        det_base=0.15, det_max=0.92, fp_rate=1.2, n_hyp=3, light=(0.55, 0.85), ambient=(0.25, 0.40),
+        sigma_2d=0.03, sigma_depth_view=0.015, sigma_depth_det=0.02, sigma_rot_deg=6.0, p_gross=0.2,
+        det_base=0.15, det_max=0.75, fp_rate=1.2, n_hyp=3, light=(0.55, 0.85), ambient=(0.25, 0.40),
     ),
     "textured_household": dict(
         appearance="rich", grayscale=False, n_targets=3, n_distractors=(1, 3), plane="wood",
-        sigma_2d=0.025, sigma_depth_view=0.025, sigma_depth_det=0.035, sigma_rot_deg=4.5, p_gross=0.12,
-        det_base=0.25, det_max=0.92, fp_rate=0.7, n_hyp=3, light=(0.50, 0.80), ambient=(0.30, 0.45),
+        sigma_2d=0.025, sigma_depth_view=0.0125, sigma_depth_det=0.0175, sigma_rot_deg=4.5, p_gross=0.12,
+        det_base=0.25, det_max=0.85, fp_rate=0.7, n_hyp=3, light=(0.50, 0.80), ambient=(0.30, 0.45),
     ),
     "reflective_industrial": dict(
         appearance="metal", grayscale=True, n_targets=3, n_distractors=(2, 4), plane="dark",
-        sigma_2d=0.035, sigma_depth_view=0.035, sigma_depth_det=0.05, sigma_rot_deg=7.0, p_gross=0.25,
-        det_base=0.12, det_max=0.92, fp_rate=1.0, n_hyp=3, light=(0.70, 1.00), ambient=(0.15, 0.30),
+        sigma_2d=0.035, sigma_depth_view=0.0175, sigma_depth_det=0.025, sigma_rot_deg=7.0, p_gross=0.25,
+        det_base=0.12, det_max=0.60, fp_rate=1.0, n_hyp=3, light=(0.70, 1.00), ambient=(0.15, 0.30),
     ),
 }
 

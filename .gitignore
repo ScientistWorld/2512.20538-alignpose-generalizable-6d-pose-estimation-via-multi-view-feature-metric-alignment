@@ -234,3 +234,5 @@ core.[0-9]*
 # Hardening audit raw predictions (regenerable)
 hardening/results/test_predictions/
 hardening/results/train_predictions/
+# Large per-target audit diagnostics (regenerable by scripts/run.sh)
+hardening/results/details_*.json

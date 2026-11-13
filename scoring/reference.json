@@ -1,25 +1,63 @@
 {
-  "_note": "Paper: AlignPose (arXiv 2512.20538). The executable gym is a synthetic, scaled-down substitute for the paper's BOP evaluation: three hidden scene regimes generated at test time (eval/test/) that mirror T-LESS (textureless, cluttered), YCB-V (textured household) and ITODD-MV (grayscale, reflective industrial), each with 60 four-view scenes, 3 target objects per scene, unseen objects, and simulated single-view candidates. AR = mean of AR_MSSD and AR_MSPD (BOP thresholds; VSD not computed), AP = mean of AP_MSSD and AP_MSPD (BOP/COCO 101-point AP). The paper's numbers are real-data BOP numbers and are NOT on the gym's scale; they are kept for context only, under keys starting with '_paper'. Each scored method's gym values are in scoring/scores_test.json.",
+  "_note": "Paper: AlignPose (arXiv 2512.20538). The executable gym is a synthetic, scaled-down substitute for the paper's BOP evaluation: three hidden scene regimes generated at test time by eval/test/ that mirror T-LESS (textureless, cluttered), YCB-V (textured household) and ITODD-MV (grayscale, reflective industrial), each with 60 four-view scenes (256 x 256 px), 3 target objects per scene drawn from an 8-object library not seen in the visible train split, and simulated single-view candidates (depth/rotation errors, gross orientation errors, missed detections, false positives). Metrics follow the paper's BOP protocol per image: AR = mean of AR_MSSD and AR_MSPD (BOP thresholds; VSD is not computed), AP = mean of AP_MSSD and AP_MSPD (BOP/COCO 101-point AP). The paper's numbers are real-data BOP numbers and are NOT on the gym's scale: they are kept for context only, under keys starting with '_paper'. The gym values of the reference and baselines are in scoring/scores_test.json (hidden test) and scoring/scores_train.json (visible train).",
   "experiments": {
     "textureless_clutter": {
       "description": "T-LESS analog (paper Tables 1 and 4, Co-op candidates): textureless objects in clutter with distractors and occlusion; four calibrated RGB views; single-view candidates with depth/orientation errors, misses and false positives.",
-      "weight": 0.40,
+      "weight": 0.4,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "BOP-style average recall: mean over 10 thresholds of recall under MSSD (5-50% of diameter) and MSPD (5-50 px at 640 px width), averaged over the two errors; one estimate per object and scene."},
-        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "BOP/COCO-style 101-point average precision over the same MSSD and MSPD thresholds, ranked by the submitted confidence, per object then averaged; duplicates and wrong objects are false positives."}
+        "AR": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "BOP-style average recall: mean over 10 thresholds of recall under MSSD (5-50% of diameter) and MSPD (5-50 px at 640 px width), averaged over the two errors; evaluated per image as in BOP; one estimate per object and scene."
+        },
+        "AP": {
+          "higher_is_better": true,
+          "coefficient": 0.8,
+          "description": "BOP/COCO-style 101-point average precision over the same MSSD and MSPD thresholds, ranked by the submitted confidence, per object then averaged; duplicates and wrong objects are false positives."
+        }
       },
       "results": {
-        "alignpose": {"type": "proposed", "AR": 89.5, "AP": 92.4},
-        "single_view_candidate": {"type": "baseline"},
-        "multiview_aggregation": {"type": "baseline"},
-        "multiview_aggregation_nms": {"type": "baseline"},
-        "multiview_consensus": {"type": "baseline"},
-        "_paper_single_view_coop": {"type": "baseline", "AR": 68.2, "AP": 68.9},
-        "_paper_4views_aggregation": {"type": "baseline", "AR": 69.5, "AP": 48.6},
-        "_paper_4views_aggregation_nms": {"type": "baseline", "AR": 73.1, "AP": 80.2},
-        "_paper_cosypose_mv": {"type": "baseline", "AR": 78.7, "AP": 78.9},
-        "_paper_alignpose": {"type": "proposed", "AR": 89.5, "AP": 92.4}
+        "alignpose": {
+          "type": "proposed"
+        },
+        "single_view_candidate": {
+          "type": "baseline"
+        },
+        "multiview_aggregation": {
+          "type": "baseline"
+        },
+        "multiview_aggregation_nms": {
+          "type": "baseline"
+        },
+        "multiview_consensus": {
+          "type": "baseline"
+        },
+        "_paper_single_view_coop": {
+          "type": "baseline",
+          "AR": 68.2,
+          "AP": 68.9
+        },
+        "_paper_4views_aggregation": {
+          "type": "baseline",
+          "AR": 69.5,
+          "AP": 48.6
+        },
+        "_paper_4views_aggregation_nms": {
+          "type": "baseline",
+          "AR": 73.1,
+          "AP": 80.2
+        },
+        "_paper_cosypose_mv": {
+          "type": "baseline",
+          "AR": 78.7,
+          "AP": 78.9
+        },
+        "_paper_alignpose": {
+          "type": "proposed",
+          "AR": 89.5,
+          "AP": 92.4
+        }
       }
     },
     "textured_household": {
@@ -27,20 +65,58 @@
       "weight": 0.25,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "BOP-style average recall over MSSD and MSPD thresholds (see textureless_clutter)."},
-        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "BOP/COCO-style average precision over MSSD and MSPD thresholds (see textureless_clutter)."}
+        "AR": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "BOP-style average recall over MSSD and MSPD thresholds (see textureless_clutter)."
+        },
+        "AP": {
+          "higher_is_better": true,
+          "coefficient": 0.8,
+          "description": "BOP/COCO-style average precision over MSSD and MSPD thresholds (see textureless_clutter)."
+        }
       },
       "results": {
-        "alignpose": {"type": "proposed", "AR": 83.8, "AP": 83.3},
-        "single_view_candidate": {"type": "baseline"},
-        "multiview_aggregation": {"type": "baseline"},
-        "multiview_aggregation_nms": {"type": "baseline"},
-        "multiview_consensus": {"type": "baseline"},
-        "_paper_single_view_coop": {"type": "baseline", "AR": 69.7, "AP": 69.5},
-        "_paper_4views_aggregation": {"type": "baseline", "AR": 63.7, "AP": 33.9},
-        "_paper_4views_aggregation_nms": {"type": "baseline", "AR": 63.0, "AP": 62.3},
-        "_paper_cosypose_mv": {"type": "baseline", "AR": 81.0, "AP": 79.2},
-        "_paper_alignpose": {"type": "proposed", "AR": 83.8, "AP": 83.3}
+        "alignpose": {
+          "type": "proposed"
+        },
+        "single_view_candidate": {
+          "type": "baseline"
+        },
+        "multiview_aggregation": {
+          "type": "baseline"
+        },
+        "multiview_aggregation_nms": {
+          "type": "baseline"
+        },
+        "multiview_consensus": {
+          "type": "baseline"
+        },
+        "_paper_single_view_coop": {
+          "type": "baseline",
+          "AR": 69.7,
+          "AP": 69.5
+        },
+        "_paper_4views_aggregation": {
+          "type": "baseline",
+          "AR": 63.7,
+          "AP": 33.9
+        },
+        "_paper_4views_aggregation_nms": {
+          "type": "baseline",
+          "AR": 63.0,
+          "AP": 62.3
+        },
+        "_paper_cosypose_mv": {
+          "type": "baseline",
+          "AR": 81.0,
+          "AP": 79.2
+        },
+        "_paper_alignpose": {
+          "type": "proposed",
+          "AR": 83.8,
+          "AP": 83.3
+        }
       }
     },
     "reflective_industrial": {
@@ -48,24 +124,106 @@
       "weight": 0.35,
       "primary_metric": "AR",
       "metrics": {
-        "AR": {"higher_is_better": true, "coefficient": 1.0, "description": "BOP-style average recall over MSSD and MSPD thresholds (see textureless_clutter)."},
-        "AP": {"higher_is_better": true, "coefficient": 0.8, "description": "BOP/COCO-style average precision over MSSD and MSPD thresholds (see textureless_clutter)."}
+        "AR": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "BOP-style average recall over MSSD and MSPD thresholds (see textureless_clutter)."
+        },
+        "AP": {
+          "higher_is_better": true,
+          "coefficient": 0.8,
+          "description": "BOP/COCO-style average precision over MSSD and MSPD thresholds (see textureless_clutter)."
+        }
       },
       "results": {
-        "alignpose": {"type": "proposed", "AR": 68.8, "AP": 73.2},
-        "single_view_candidate": {"type": "baseline"},
-        "multiview_aggregation": {"type": "baseline"},
-        "multiview_aggregation_nms": {"type": "baseline"},
-        "multiview_consensus": {"type": "baseline"},
-        "_paper_single_view_foundpose": {"type": "baseline", "AR": 36.9, "AP": 31.8},
-        "_paper_cosypose_mv": {"type": "baseline", "AR": 49.2, "AP": 45.4},
-        "_paper_alignpose": {"type": "proposed", "AR": 68.8, "AP": 73.2}
+        "alignpose": {
+          "type": "proposed"
+        },
+        "single_view_candidate": {
+          "type": "baseline"
+        },
+        "multiview_aggregation": {
+          "type": "baseline"
+        },
+        "multiview_aggregation_nms": {
+          "type": "baseline"
+        },
+        "multiview_consensus": {
+          "type": "baseline"
+        },
+        "_paper_single_view_foundpose": {
+          "type": "baseline",
+          "AR": 36.9,
+          "AP": 31.8
+        },
+        "_paper_cosypose_mv": {
+          "type": "baseline",
+          "AR": 49.2,
+          "AP": 45.4
+        },
+        "_paper_alignpose": {
+          "type": "proposed",
+          "AR": 68.8,
+          "AP": 73.2
+        }
       }
     }
   },
   "_paper_not_reproduced": {
-    "housecat6d_foundpose": {"single_view": {"AR": 69.3, "AP": 65.3}, "cosypose_mv": {"AR": 80.3, "AP": 79.5}, "alignpose": {"AR": 85.6, "AP": 85.8}, "note": "Transparent/metallic household objects; not reproduced (the synthetic renderer has no transparency)."},
-    "housecat6d_glass_metallic": {"glass": {"foundpose": {"AR": 64.8, "AP": 67.4}, "cosypose_mv": {"AR": 77.0, "AP": 79.0}, "alignpose": {"AR": 88.0, "AP": 92.3}}, "metallic": {"foundpose": {"AR": 24.1, "AP": 27.7}, "cosypose_mv": {"AR": 24.9, "AP": 28.9}, "alignpose": {"AR": 34.0, "AP": 38.8}}},
-    "tless_seen_objects": {"cosypose_mv_synt_real": {"AR": 81.5, "AP": 81.7}, "alignpose_synt_real": {"AR": 86.8, "AP": 91.0}}
+    "housecat6d_foundpose": {
+      "single_view": {
+        "AR": 69.3,
+        "AP": 65.3
+      },
+      "cosypose_mv": {
+        "AR": 80.3,
+        "AP": 79.5
+      },
+      "alignpose": {
+        "AR": 85.6,
+        "AP": 85.8
+      },
+      "note": "Transparent/metallic household objects; not reproduced (the synthetic renderer has no transparency)."
+    },
+    "housecat6d_glass_metallic": {
+      "glass": {
+        "foundpose": {
+          "AR": 64.8,
+          "AP": 67.4
+        },
+        "cosypose_mv": {
+          "AR": 77.0,
+          "AP": 79.0
+        },
+        "alignpose": {
+          "AR": 88.0,
+          "AP": 92.3
+        }
+      },
+      "metallic": {
+        "foundpose": {
+          "AR": 24.1,
+          "AP": 27.7
+        },
+        "cosypose_mv": {
+          "AR": 24.9,
+          "AP": 28.9
+        },
+        "alignpose": {
+          "AR": 34.0,
+          "AP": 38.8
+        }
+      }
+    },
+    "tless_seen_objects": {
+      "cosypose_mv_synt_real": {
+        "AR": 81.5,
+        "AP": 81.7
+      },
+      "alignpose_synt_real": {
+        "AR": 86.8,
+        "AP": 91.0
+      }
+    }
   }
 }
