@@ -1,5 +1,11 @@
 # Progress
 
+## Current state (iteration 11, hardening)
+
+The gym described below this section was replaced. See `HARDENING.md` for the current gym, the reference's hidden-test scores, the audit of better/weaker variants and shortcuts, and what remains open. In short: three synthetic regimes (T-LESS-, YCB-V- and ITODD-like) generated at test time, per-image BOP AR/AP, and a reference AlignPose reproduction with 420 px perspective crops, frozen DINOv2-S layer-9 features with per-object PCA, rendered-depth registered features, multi-view Levenberg-Marquardt on the Barron loss, and 3D NMS before and after refinement.
+
+## History (earlier iterations, superseded)
+
 ## What Works
 
 Documentation and scoring scaffolding have been initialized for the AlignPose reproduction. A reduced synthetic multi-view pose benchmark has been added under `data/`, with a single asymmetric object, calibrated four-view scenes, and noisy single-view pose candidates.

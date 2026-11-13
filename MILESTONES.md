@@ -45,5 +45,10 @@
 - The job regenerated baseline predictions, AlignPose predictions, canonical scores, train scores, and test scores from the current camera-frame candidate interface.
 - Final canonical scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00, with exact pose copy rate 0.0 and no depth or object-specific training.
 
+### [2026-11-13] - core_claim (hardening, iteration 11)
+- Rebuilt gym: hidden test scenes (3 regimes x 60 four-view scenes, unseen objects) generated at test time; every submission run on a fresh copy; per-image BOP AR/AP recomputed from raw detections; failed/invalid runs get AR = AP = 0 everywhere; test code moved out of reach while submissions run.
+- Candidate simulator calibrated on a separate dev split (halved depth error, lower per-view detection) so the reproduced method converges from most coarse poses, as in the paper; the image-free geometric consensus baseline no longer outranks it (rank -0.104, was +0.315).
+- Hidden test, reference AR/AP: textureless 73.82/72.96, textured 82.00/80.59, reflective 59.32/56.81; single-view 35.99/48.64/23.07 AR; aggregation+NMS 58.75/67.41/49.05 AR. Better variants +0.41/+0.33 rank, weaker -0.22; all shortcuts fail or tie. Details in HARDENING.md.
+
 ## Stop Justification
 - Completed at milestone `core_claim`.

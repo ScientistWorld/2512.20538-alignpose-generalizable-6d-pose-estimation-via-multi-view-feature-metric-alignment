@@ -1,5 +1,5 @@
 {
-  "_note": "Paper: AlignPose (arXiv 2512.20538). The executable gym is a synthetic, scaled-down substitute for the paper's BOP evaluation: three hidden scene regimes generated at test time by eval/test/ that mirror T-LESS (textureless, cluttered), YCB-V (textured household) and ITODD-MV (grayscale, reflective industrial), each with 60 four-view scenes (256 x 256 px), 3 target objects per scene drawn from an 8-object library not seen in the visible train split, and simulated single-view candidates (depth/rotation errors, gross orientation errors, missed detections, false positives). Metrics follow the paper's BOP protocol per image: AR = mean of AR_MSSD and AR_MSPD (BOP thresholds; VSD is not computed), AP = mean of AP_MSSD and AP_MSPD (BOP/COCO 101-point AP). The paper's numbers are real-data BOP numbers and are NOT on the gym's scale: they are kept for context only, under keys starting with '_paper'. The gym values of the reference and baselines are in scoring/scores_test.json (hidden test) and scoring/scores_train.json (visible train).",
+  "_note": "Paper: AlignPose (arXiv 2512.20538). The executable gym is a synthetic, scaled-down substitute for the paper's BOP evaluation: three hidden scene regimes generated at test time by eval/test/ that mirror T-LESS (textureless, cluttered), YCB-V (textured household) and ITODD-MV (grayscale, reflective industrial), each with 60 four-view scenes (256 x 256 px), 3 target objects per scene drawn from an 8-object library not seen in the visible train split, and simulated single-view candidates (depth/rotation errors, gross orientation errors, missed detections, false positives). Metrics follow the paper's BOP protocol per image: AR = mean of AR_MSSD and AR_MSPD (BOP thresholds; VSD is not computed), AP = mean of AP_MSSD and AP_MSPD (BOP/COCO 101-point AP). The paper's numbers are real-data BOP numbers and are NOT on the gym's scale: they are kept for context only, under keys starting with '_paper'. The gym values of the reference and baselines are in scoring/scores_test.json (hidden test) and scoring/scores_train.json (visible train). The non-underscore 'alignpose' entry holds the reproduced reference's own hidden-test values on this gym (from scoring/scores_test.json), not paper numbers.",
   "experiments": {
     "textureless_clutter": {
       "description": "T-LESS analog (paper Tables 1 and 4, Co-op candidates): textureless objects in clutter with distractors and occlusion; four calibrated RGB views; single-view candidates with depth/orientation errors, misses and false positives.",
@@ -19,7 +19,9 @@
       },
       "results": {
         "alignpose": {
-          "type": "proposed"
+          "type": "proposed",
+          "AR": 73.82,
+          "AP": 72.96
         },
         "single_view_candidate": {
           "type": "baseline"
@@ -78,7 +80,9 @@
       },
       "results": {
         "alignpose": {
-          "type": "proposed"
+          "type": "proposed",
+          "AR": 82.0,
+          "AP": 80.59
         },
         "single_view_candidate": {
           "type": "baseline"
@@ -137,7 +141,9 @@
       },
       "results": {
         "alignpose": {
-          "type": "proposed"
+          "type": "proposed",
+          "AR": 59.32,
+          "AP": 56.81
         },
         "single_view_candidate": {
           "type": "baseline"

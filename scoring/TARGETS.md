@@ -1,19 +1,17 @@
 # Evaluation Targets
 
-## tless_coop_ablation
+Three scored experiments, one per scene regime, each with AR and AP on the hidden test (`scripts/evaluate_test.sh`, no arguments; results in `scoring/scores_test.json`). The visible train split is scored the same way by `scripts/evaluate_train.sh` (`scoring/scores_train.json`).
 
-Tests the core claim on the runnable reduced benchmark: a calibrated four-view
-pose task with noisy single-view candidates, where a valid multi-view estimator
-should improve over the unrefined candidate baseline.
+| experiment | weight | metrics (coefficient) | paper analogue |
+|---|---|---|---|
+| `textureless_clutter` | 0.40 | AR (1.0), AP (0.8) | T-LESS, Tables 1 and 4 |
+| `textured_household` | 0.25 | AR (1.0), AP (0.8) | YCB-V, Tables 1 and 4 |
+| `reflective_industrial` | 0.35 | AR (1.0), AP (0.8) | ITODD-MV, Tables 1 and 8 |
 
-- **Benefit metrics**: `AR`, `AP` (higher is better)
-- **Constraint metrics**: `num_views`, `uses_depth_sensor`,
-  `object_specific_training`, and `mean_final_candidates`. These audit that
-  the score comes from the intended calibrated RGB-only, no-training setting
-  rather than extra sensors, extra labels, or unbounded duplicate predictions.
-- **How to run evaluation**: run `scripts/reproduce.sh`, or run
-  `scripts/baseline.sh`, `scripts/method.sh`, then `scripts/evaluate.sh`.
+- **Benefit metric**: `AR` (per-image BOP average recall over MSSD and MSPD thresholds), higher is better.
+- **Constraint metric**: `AP` (per-image BOP/COCO average precision over the same thresholds), higher is better. It guards the paper's claim that accuracy is gained without giving up precision: redundant or spurious hypotheses and miscalibrated confidences lower AP even when AR is unchanged.
+- **Protocol constraints (enforced by the evaluator)**: RGB images, calibration, meshes and candidates only (no depth in the inputs); objects at test time are unseen; invalid or impossible output fails the whole run with AR = AP = 0 everywhere.
 
-The paper's full BOP targets for YCB-V, T-LESS, ITODD-MV, and HouseCat6D are
-kept in `scoring/reference.json` for context, but the currently executable gym
-target is this reduced T-LESS-style ablation substitute.
+Reference (reproduced method, hidden test): textureless 73.82 / 72.96, textured 82.00 / 80.59, reflective 59.32 / 56.81 (AR / AP). The paper's real-data numbers are kept in `scoring/reference.json` under `_paper_*` keys for context only.
+
+How to run: `scripts/download.sh` (weights), then `scripts/evaluate_train.sh` and `scripts/evaluate_test.sh`; `scripts/reproduce.sh` does all three.

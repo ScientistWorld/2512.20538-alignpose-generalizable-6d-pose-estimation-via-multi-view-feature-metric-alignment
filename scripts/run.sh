@@ -1,7 +1,7 @@
 #!/bin/bash
 # Scheduler job for the hardening iteration (final run). Resumable: the node may
 # be preempted, so every stage records completion and the evaluators/method
-# cache finished work under tmp/job_state (results are identical to a clean run).
+# cache finished work under tmp/job_state_<code hash> (results are identical to a clean run).
 #   1. regenerate the visible train split with the current generator
 #   2. scripts/evaluate_train.sh code path  -> scoring/scores_train.json
 #   3. scripts/evaluate_test.sh code path   -> scoring/scores_test.json (+ scores.json)
@@ -9,16 +9,19 @@
 #   5. paired bootstrap + rank deltas       -> hardening/results/summary.{json,md}
 set -euo pipefail
 cd /home/user
-state=tmp/job_state
-mkdir -p "$state" hardening/results
 # the test evaluator moves eval/test/ out of the workspace while submissions run;
 # keep a copy so a preemption at that moment cannot lose it
-if [ ! -f "$state/eval_test_backup/evaluate.py" ]; then
-  rm -rf "$state/eval_test_backup"; cp -r eval/test "$state/eval_test_backup"
+mkdir -p tmp
+if [ -f eval/test/evaluate.py ]; then
+  rm -rf tmp/eval_test_backup; cp -r eval/test tmp/eval_test_backup
+elif [ -f tmp/eval_test_backup/evaluate.py ]; then
+  rm -rf eval/test; cp -r tmp/eval_test_backup eval/test
 fi
-if [ ! -f eval/test/evaluate.py ]; then
-  rm -rf eval/test; cp -r "$state/eval_test_backup" eval/test
-fi
+# resume state is keyed on the code that produces the results, so a stale cache is never reused
+key=$(cat eval/test/*.py eval/train/*.py method/*.py baseline/*.py submissions/*.sh hardening/submissions/*.sh \
+      hardening/shortcuts.py | sha1sum | cut -c1-12)
+state=tmp/job_state_$key
+mkdir -p "$state" hardening/results
 export ALIGNPOSE_CACHE_DIR=/home/user/$state/alignpose_cache
 echo "cpus $(python -c 'import os; print(len(os.sched_getaffinity(0)))')"
 ./scripts/download.sh --offline

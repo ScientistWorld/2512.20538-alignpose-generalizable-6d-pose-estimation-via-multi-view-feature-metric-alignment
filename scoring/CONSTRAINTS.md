@@ -1,30 +1,21 @@
 # Scientist Constraints
 
-## Data
-
-Use `data/synthetic_benchmark.json` for the executable gym target. Do not add
-extra labeled scenes, alter ground-truth poses, or tune on hidden labels. The
-paper's full BOP datasets are documented as context, but they are not required
-for the current runnable target.
-
 ## Inputs
 
-Use only RGB images, known camera intrinsics, known camera extrinsics, the
-provided object model, and the supplied candidate hypotheses. Do not use depth sensor input,
-external point clouds, manually corrected poses, or manually annotated
-symmetry metadata.
+Use only what a submission receives in `INPUT_DIR`: the RGB images, camera intrinsics and extrinsics, object meshes with their vertex colours, and the per-view single-view candidates. Do not use depth, extra views, external labels or annotated symmetries.
 
-## View Protocol
+## Objects and training
 
-Keep the four-view calibrated setup fixed. Do not improve scores by adding
-test-time views or changing the camera geometry in the dataset.
+Test objects are unseen. Mesh-only onboarding at run time is allowed (rendering the supplied meshes, computing statistics from those renders). Training or tuning on the visible train split (`data/train`, labels in `eval/train/train_gt.json`) is allowed; training on, or looking up, test objects or test scenes is not.
 
-## Training and Onboarding
+## Evaluation code and answers
 
-The executable target requires no object-specific training. Mesh-only
-precomputation is allowed, but it must not use ground-truth test poses.
+Do not read, import, copy or modify `eval/test/`, and do not try to locate the hidden scenes' answers or another submission's outputs while running. The evaluator scores only the `detections` you write; any other field is ignored.
 
-## Evaluation
+## Output
 
-Methods must write prediction artifacts consumed by `scripts/evaluate.sh`.
-Evaluation code must remain independent of `method/`.
+One script per method in `submissions/<name>.sh`, called as `bash submissions/<name>.sh INPUT_DIR OUTPUT_JSON`, finishing within 4 hours on the evaluation node. Every detection must be a valid rotation, a finite translation in metres, an object from the scene's library and a numeric score; at most 100 detections per scene. Otherwise the whole run is scored as failed.
+
+## Code organisation
+
+`eval/` must not import from `method/`; shared data utilities belong in `data/` or the method itself.
