@@ -1,8 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: pending
+action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: ""
+notes: "Calibration study on a dev-only split (seed separate from train/test): reference vs consensus/NMS baselines at 256 vs 512 px, halved candidate depth error, lower per-view detection rate; plus multi-hypothesis and pixel-feature variants."
