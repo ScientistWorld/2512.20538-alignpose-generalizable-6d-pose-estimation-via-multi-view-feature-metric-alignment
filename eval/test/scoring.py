@@ -3,17 +3,21 @@
 All numbers are recomputed here from the raw submitted poses and confidence
 scores; nothing a submission writes besides ``detections`` is read.
 
+Evaluation is per image, as in the BOP protocol the paper follows: each scene
+detection (a world-frame pose) is an estimate in every view of its scene, and
+each (image, object) pair whose visible fraction is at least 0.1 is one
+ground-truth instance.
+
 Errors (objects are asymmetric, so no symmetry handling is needed):
   * MSSD: maximum 3D distance between model points under the estimated and the
-    ground-truth world pose.
-  * MSPD: maximum 2D distance between the projected model points, taken as the
-    worst view among the views in which the instance is visible.
+    ground-truth pose, relative to the object diameter.
+  * MSPD: maximum 2D distance between the projected model points in the image.
 
 AR follows the BOP localisation protocol (mean recall over 10 thresholds per
-error, averaged over MSSD and MSPD). Each object appears at most once per scene,
-so only the highest-scoring estimate of an object in a scene is matched;
-further estimates of the same object in that scene are false positives in AP.
-AP follows the BOP/COCO detection protocol (101-point interpolated average
+error, averaged over MSSD and MSPD; VSD is not computed). Each object appears at
+most once per scene, so only the highest-scoring estimate of an object in a
+scene is matched; further estimates of the same object are false positives in
+AP. AP follows the BOP/COCO detection protocol (101-point interpolated average
 precision over the same thresholds, per object, averaged over objects and over
 MSSD and MSPD).
 """
@@ -91,26 +95,16 @@ def _mssd(r_e, t_e, r_g, t_g, pts):
     return float(np.sqrt((diff ** 2).sum(1)).max())
 
 
-def _project(pts_w, cam):
-    xc = pts_w @ cam["R_CW"].T + cam["t_CW"][None, :]
-    z = xc[:, 2]
+def _mspd_view(r_e, t_e, r_g, t_g, pts, cam):
+    """Maximum 2D distance between projected model points in one image."""
+    pe = (pts @ r_e.T + t_e[None, :]) @ cam["R_CW"].T + cam["t_CW"][None, :]
+    pg = (pts @ r_g.T + t_g[None, :]) @ cam["R_CW"].T + cam["t_CW"][None, :]
+    if np.any(pe[:, 2] <= 1e-6) or np.any(pg[:, 2] <= 1e-6):
+        return math.inf
     k = cam["K"]
-    uv = np.stack([k[0, 0] * xc[:, 0] / np.where(z > 1e-9, z, 1.0) + k[0, 2],
-                   k[1, 1] * xc[:, 1] / np.where(z > 1e-9, z, 1.0) + k[1, 2]], 1)
-    return uv, z
-
-
-def _mspd(r_e, t_e, r_g, t_g, pts, cams, views):
-    worst = 0.0
-    pe = pts @ r_e.T + t_e[None, :]
-    pg = pts @ r_g.T + t_g[None, :]
-    for v in views:
-        uv_e, z_e = _project(pe, cams[v])
-        if np.any(z_e <= 1e-6):
-            return math.inf
-        uv_g, _ = _project(pg, cams[v])
-        worst = max(worst, float(np.sqrt(((uv_e - uv_g) ** 2).sum(1)).max()))
-    return worst
+    du = k[0, 0] * (pe[:, 0] / pe[:, 2] - pg[:, 0] / pg[:, 2])
+    dv = k[1, 1] * (pe[:, 1] / pe[:, 2] - pg[:, 1] / pg[:, 2])
+    return float(np.sqrt(du * du + dv * dv).max())
 
 
 def ap101(tp, n_gt):
@@ -150,6 +144,13 @@ def prepare_gt(gt):
 
 
 def score_dataset(prepared, dataset, dets_by_scene):
+    """Per-image BOP evaluation of world-frame scene detections.
+
+    Every scene detection is an estimate in every view of the scene (its pose
+    expressed in that camera).  A ground-truth instance is an (image, object)
+    pair with visible fraction >= 0.1 in that image; estimates of an object that
+    is present but not visible in an image are ignored there.
+    """
     info = prepared["datasets"][dataset]
     objects = prepared["objects"]
     library = list(info["objects"])
@@ -162,42 +163,45 @@ def score_dataset(prepared, dataset, dets_by_scene):
         mspd_thr = MSPD_PIXELS_AT_640 * width / 640.0
         gt_by_obj = {t["obj_id"]: t for t in scene["targets"]}
         dets = sorted(dets_by_scene.get(sid, []), key=lambda d: (-d[0], d[1]))
-        top_err = {}
+        # errors of the highest-scoring estimate of each object present in the scene
+        top = {}
         seen = set()
         for score, idx, oid, rot, trans in dets:
-            is_top = oid not in seen
+            if oid in seen:
+                continue
             seen.add(oid)
             gt_t = gt_by_obj.get(oid)
-            e_mssd = e_mspd = None
             if gt_t is None:
-                status = "fp"
-            else:
-                views = [v for v, vis in enumerate(gt_t["visib"]) if vis >= VISIB_MIN]
-                if not views:
-                    status = "ignore"
-                elif is_top:
-                    pts, diam = objects[oid]
-                    e_mssd = _mssd(rot, trans, gt_t["R"], gt_t["t"], pts) / diam
-                    e_mspd = _mspd(rot, trans, gt_t["R"], gt_t["t"], pts, scene["cameras"], views)
-                    status = "cand"
-                    top_err[oid] = (e_mssd, e_mspd)
-                else:
-                    status = "fp"
-            if status != "ignore":
-                ap_entries[oid].append((score, s_order, idx, status, e_mssd, e_mspd))
-        for oid, gt_t in gt_by_obj.items():
-            if not any(vis >= VISIB_MIN for vis in gt_t["visib"]):
                 continue
-            n_gt[oid] += 1
-            if oid in top_err:
-                e_mssd, e_mspd = top_err[oid]
-                rec_mssd = float(np.mean(e_mssd < MSSD_FRACTIONS))
-                rec_mspd = float(np.mean(e_mspd < mspd_thr))
-            else:
-                e_mssd = e_mspd = None
-                rec_mssd = rec_mspd = 0.0
-            per_target.append({"scene_id": sid, "obj_id": oid, "recall_mssd": rec_mssd, "recall_mspd": rec_mspd,
-                               "mssd_rel": e_mssd, "mspd_px": e_mspd})
+            views = [v for v, vis in enumerate(gt_t["visib"]) if vis >= VISIB_MIN]
+            if not views:
+                continue
+            pts, diam = objects[oid]
+            e_mssd = _mssd(rot, trans, gt_t["R"], gt_t["t"], pts) / diam
+            e_mspd = {v: _mspd_view(rot, trans, gt_t["R"], gt_t["t"], pts, scene["cameras"][v]) for v in views}
+            top[oid] = (idx, e_mssd, e_mspd)
+        for v in range(len(scene["cameras"])):
+            for score, idx, oid, rot, trans in dets:
+                gt_t = gt_by_obj.get(oid)
+                if gt_t is not None and gt_t["visib"][v] < VISIB_MIN:
+                    continue
+                if oid in top and top[oid][0] == idx:
+                    ap_entries[oid].append((score, s_order, v, idx, "cand", top[oid][1], top[oid][2][v]))
+                else:
+                    ap_entries[oid].append((score, s_order, v, idx, "fp", None, None))
+            for oid, gt_t in gt_by_obj.items():
+                if gt_t["visib"][v] < VISIB_MIN:
+                    continue
+                n_gt[oid] += 1
+                if oid in top:
+                    e_mssd, e_mspd = top[oid][1], top[oid][2][v]
+                    rec_mssd = float(np.mean(e_mssd < MSSD_FRACTIONS))
+                    rec_mspd = float(np.mean(e_mspd < mspd_thr))
+                else:
+                    e_mssd = e_mspd = None
+                    rec_mssd = rec_mspd = 0.0
+                per_target.append({"scene_id": sid, "view": v, "obj_id": oid, "recall_mssd": rec_mssd,
+                                   "recall_mspd": rec_mspd, "mssd_rel": e_mssd, "mspd_px": e_mspd})
     if per_target:
         ar_mssd = float(np.mean([p["recall_mssd"] for p in per_target]))
         ar_mspd = float(np.mean([p["recall_mspd"] for p in per_target]))
@@ -209,14 +213,12 @@ def score_dataset(prepared, dataset, dets_by_scene):
     for oid in library:
         if n_gt[oid] == 0:
             continue
-        entries = sorted(ap_entries[oid], key=lambda e: (-e[0], e[1], e[2]))
+        entries = sorted(ap_entries[oid], key=lambda e: (-e[0], e[1], e[2], e[3]))
         vals_m, vals_p = [], []
         for thr in MSSD_FRACTIONS:
-            tp = [e[3] == "cand" and e[4] < thr for e in entries]
-            vals_m.append(ap101(tp, n_gt[oid]))
+            vals_m.append(ap101([e[4] == "cand" and e[5] < thr for e in entries], n_gt[oid]))
         for thr in mspd_thr:
-            tp = [e[3] == "cand" and e[5] < thr for e in entries]
-            vals_p.append(ap101(tp, n_gt[oid]))
+            vals_p.append(ap101([e[4] == "cand" and e[6] < thr for e in entries], n_gt[oid]))
         ap_m.append(float(np.mean(vals_m)))
         ap_p.append(float(np.mean(vals_p)))
     ap_mssd = float(np.mean(ap_m)) if ap_m else 0.0
@@ -226,7 +228,8 @@ def score_dataset(prepared, dataset, dets_by_scene):
                "AP_MSPD": 100.0 * ap_mspd, "n_targets": len(per_target),
                "n_detections": int(sum(len(dets_by_scene.get(s, [])) for s in info["scenes"])),
                "per_target": per_target,
-               "ap_entries": {oid: [[e[0], e[1], e[3], e[4], e[5]] for e in sorted(ap_entries[oid], key=lambda e: (-e[0], e[1], e[2]))]
+               "ap_entries": {oid: [[e[0], e[1], e[4], e[5], e[6]]
+                                    for e in sorted(ap_entries[oid], key=lambda e: (-e[0], e[1], e[2], e[3]))]
                               for oid in library},
-               "n_gt": n_gt, "scenes": list(info["scenes"])}
+               "n_gt": n_gt, "scenes": list(info["scenes"]), "mspd_thresholds": [float(x) for x in mspd_thr]}
     return metrics, details

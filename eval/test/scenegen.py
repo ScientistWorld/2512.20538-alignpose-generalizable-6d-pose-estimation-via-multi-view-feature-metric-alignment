@@ -27,13 +27,14 @@ import numpy as np
 from PIL import Image
 
 IMAGE_SIZE = 256
+BASE_SIZE = 256          # focal length and pixel thresholds are defined at this size and scaled
+BASE_FOCAL = 280.0
 SUPERSAMPLE = 2
 N_VIEWS = 4
 MESH_SPACING = 0.015
 EVAL_VERTICES = 1500
 VISIB_MIN = 0.1
 JPEG_QUALITY = 90
-DET_MAX = 0.92
 OBJ_BIAS_FRACTION = 0.6
 
 DATASETS = ("textureless_clutter", "textured_household", "reflective_industrial")
@@ -50,17 +51,17 @@ CONFIG = {
     "textureless_clutter": dict(
         appearance="plain", grayscale=False, n_targets=3, n_distractors=(3, 5), plane="cloth",
         sigma_2d=0.03, sigma_depth_view=0.03, sigma_depth_det=0.04, sigma_rot_deg=6.0, p_gross=0.2,
-        det_base=0.15, fp_rate=1.2, n_hyp=3, light=(0.55, 0.85), ambient=(0.25, 0.40),
+        det_base=0.15, det_max=0.92, fp_rate=1.2, n_hyp=3, light=(0.55, 0.85), ambient=(0.25, 0.40),
     ),
     "textured_household": dict(
         appearance="rich", grayscale=False, n_targets=3, n_distractors=(1, 3), plane="wood",
         sigma_2d=0.025, sigma_depth_view=0.025, sigma_depth_det=0.035, sigma_rot_deg=4.5, p_gross=0.12,
-        det_base=0.25, fp_rate=0.7, n_hyp=3, light=(0.50, 0.80), ambient=(0.30, 0.45),
+        det_base=0.25, det_max=0.92, fp_rate=0.7, n_hyp=3, light=(0.50, 0.80), ambient=(0.30, 0.45),
     ),
     "reflective_industrial": dict(
         appearance="metal", grayscale=True, n_targets=3, n_distractors=(2, 4), plane="dark",
         sigma_2d=0.035, sigma_depth_view=0.035, sigma_depth_det=0.05, sigma_rot_deg=7.0, p_gross=0.25,
-        det_base=0.12, fp_rate=1.0, n_hyp=3, light=(0.70, 1.00), ambient=(0.15, 0.30),
+        det_base=0.12, det_max=0.92, fp_rate=1.0, n_hyp=3, light=(0.70, 1.00), ambient=(0.15, 0.30),
     ),
 }
 
@@ -438,8 +439,8 @@ def make_plane(rng, kind):
     return dict(base=base, k=np.array(ks), phase=np.array(ph), amp=np.array(am))
 
 
-def render_view(scene, cam, rng, cfg):
-    size, ss = IMAGE_SIZE, SUPERSAMPLE
+def render_view(scene, cam, rng, cfg, size):
+    ss = SUPERSAMPLE
     ents = scene["entities"]
     prims = scene["prims"]
     origins, dirs = camera_rays(cam, size, ss)
@@ -541,17 +542,18 @@ def project_points(pts_w, cam):
     return np.stack([k[0, 0] * xc[:, 0] / z + k[0, 2], k[1, 1] * xc[:, 1] / z + k[1, 2]], 1), z
 
 
-def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, objects, depth_bias, obj_bias):
+def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, objects, depth_bias, obj_bias, size):
     k = cam["K"]
     cands = []
     det_id = 0
     visible_targets = []
+    min_px = 60.0 * (size / BASE_SIZE) ** 2
     for j, tg in enumerate(targets):
         v = visib[j]
-        if alone_px[j] < 60 or v < VISIB_MIN:
+        if alone_px[j] < min_px or v < VISIB_MIN:
             continue
         visible_targets.append(j)
-        p_det = cfg["det_base"] + (DET_MAX - cfg["det_base"]) * v ** 1.5
+        p_det = cfg["det_base"] + (cfg["det_max"] - cfg["det_base"]) * v ** 1.5
         if rng.random() > p_det:
             continue
         obj = objects[tg["obj_id"]]
@@ -595,7 +597,7 @@ def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, object
         else:
             oid = library[int(rng.integers(len(library)))]
             for _ in range(20):
-                uv = rng.uniform(0.15 * IMAGE_SIZE, 0.85 * IMAGE_SIZE, 2)
+                uv = rng.uniform(0.15 * size, 0.85 * size, 2)
                 ray_c = np.array([(uv[0] - k[0, 2]) / k[0, 0], (uv[1] - k[1, 2]) / k[1, 1], 1.0])
                 ray_w = cam["R_CW"].T @ ray_c
                 origin = -cam["R_CW"].T @ cam["t_CW"]
@@ -618,8 +620,9 @@ def simulate_candidates(rng, cfg, cam, targets, visib, alone_px, library, object
 
 
 def generate_scene(task):
-    (seed, d_idx, s_idx, dataset, scene_id, library, objects, out_dir) = task
-    cfg = CONFIG[dataset]
+    (seed, d_idx, s_idx, dataset, scene_id, library, objects, out_dir, cfg, size) = task
+    # independent random streams: scene layout, per-view image formation and
+    # per-view candidate simulation (so changing one never reshuffles the others)
     rng = np.random.default_rng([seed, d_idx, s_idx, 7])
     tgt_ids = [library[i] for i in rng.choice(len(library), size=cfg["n_targets"], replace=False)]
     entities, placed = [], []
@@ -651,8 +654,9 @@ def generate_scene(task):
         dist = rng.uniform(0.62, 0.85)
         pos = center + dist * np.array([math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
         r_cw, t_cw = look_at(pos, center + rng.normal(0.0, 0.03, 3), rng.uniform(-0.09, 0.09))
-        f = 280.0 * rng.uniform(0.97, 1.03)
-        kmat = np.array([[f, 0.0, IMAGE_SIZE / 2 + rng.uniform(-2, 2)], [0.0, f, IMAGE_SIZE / 2 + rng.uniform(-2, 2)],
+        px = size / BASE_SIZE
+        f = BASE_FOCAL * px * rng.uniform(0.97, 1.03)
+        kmat = np.array([[f, 0.0, size / 2 + px * rng.uniform(-2, 2)], [0.0, f, size / 2 + px * rng.uniform(-2, 2)],
                          [0.0, 0.0, 1.0]])
         cams.append(dict(K=kmat, R_CW=r_cw, t_CW=t_cw))
     targets = [dict(obj_id=e["obj_id"], R=e["R"], t=e["t"]) for e in entities if e["kind"] == "target"]
@@ -666,7 +670,9 @@ def generate_scene(task):
     views_json = []
     visib_all = []
     for v, cam in enumerate(cams):
-        img, label, (origins, dirs) = render_view(scene, cam, rng, cfg)
+        rng_img = np.random.default_rng([seed, d_idx, s_idx, 7, 100 + v])
+        rng_cand = np.random.default_rng([seed, d_idx, s_idx, 7, 200 + v])
+        img, label, (origins, dirs) = render_view(scene, cam, rng_img, cfg, size)
         visib, alone = [], []
         for ei in target_ent:
             own = [p for p in scene["prims"] if p["ent"] == ei]
@@ -676,8 +682,9 @@ def generate_scene(task):
             alone.append(n_alone / SUPERSAMPLE ** 2)
             visib.append(0.0 if n_alone == 0 else n_vis / n_alone)
         visib_all.append(visib)
-        depth_bias = rng.normal(0.0, cfg["sigma_depth_view"])
-        cands = simulate_candidates(rng, cfg, cam, targets, visib, alone, library, objects, depth_bias, obj_bias)
+        depth_bias = rng_cand.normal(0.0, cfg["sigma_depth_view"])
+        cands = simulate_candidates(rng_cand, cfg, cam, targets, visib, alone, library, objects, depth_bias, obj_bias,
+                                    size)
         Image.fromarray(img).save(scene_dir / f"view_{v}.jpg", quality=JPEG_QUALITY)
         views_json.append({
             "view_id": v,
@@ -691,7 +698,7 @@ def generate_scene(task):
     scene_json = {
         "scene_id": scene_id,
         "dataset": dataset,
-        "image_size": [IMAGE_SIZE, IMAGE_SIZE],
+        "image_size": [size, size],
         "object_library": list(library),
         "views": views_json,
     }
@@ -699,7 +706,7 @@ def generate_scene(task):
     gt = {
         "scene_id": scene_id,
         "dataset": dataset,
-        "image_size": [IMAGE_SIZE, IMAGE_SIZE],
+        "image_size": [size, size],
         "cameras": [{"K": c["K"].tolist(), "R_CW": c["R_CW"].tolist(), "t_CW": c["t_CW"].tolist()} for c in cams],
         "targets": [{"obj_id": tg["obj_id"], "R": tg["R"].tolist(), "t": tg["t"].tolist(),
                      "visib": [float(visib_all[v][j]) for v in range(N_VIEWS)]} for j, tg in enumerate(targets)],
@@ -717,18 +724,30 @@ def _worker_count(requested=None):
     return max(1, n)
 
 
-def generate_split(split, out_dir, scenes_per_dataset=None, workers=None):
+def generate_split(split, out_dir, scenes_per_dataset=None, workers=None, *, seed=None, image_size=None,
+                   overrides=None):
     """Write method-visible inputs to ``out_dir`` and return the ground truth.
 
     The returned dictionary holds labels, cameras and evaluation geometry; it is
-    never written inside ``out_dir``.
+    never written inside ``out_dir``.  ``seed``/``image_size``/``overrides``
+    exist only for offline calibration studies on a separate ``dev`` split; the
+    train and test splits always use the module settings.
     """
     if split == "test":
-        seed, n_scenes, n_obj, prefix = TEST_SEED, TEST_SCENES_PER_DATASET, TEST_OBJECTS_PER_DATASET, "test"
+        base_seed, n_scenes, n_obj, prefix = TEST_SEED, TEST_SCENES_PER_DATASET, TEST_OBJECTS_PER_DATASET, "test"
     elif split == "train":
-        seed, n_scenes, n_obj, prefix = TRAIN_SEED, TRAIN_SCENES_PER_DATASET, TRAIN_OBJECTS_PER_DATASET, "train"
+        base_seed, n_scenes, n_obj, prefix = TRAIN_SEED, TRAIN_SCENES_PER_DATASET, TRAIN_OBJECTS_PER_DATASET, "train"
+    elif split == "dev":
+        if seed is None:
+            raise ValueError("the dev split needs an explicit seed")
+        base_seed, n_scenes, n_obj, prefix = int(seed), TRAIN_SCENES_PER_DATASET, TRAIN_OBJECTS_PER_DATASET, "dev"
     else:
         raise ValueError(split)
+    if split != "dev" and (seed is not None or image_size is not None or overrides):
+        raise ValueError("train/test splits are generated with the module settings only")
+    seed = base_seed
+    size = int(image_size or IMAGE_SIZE)
+    configs = {d: dict(CONFIG[d], **((overrides or {}).get(d, {}))) for d in DATASETS}
     if scenes_per_dataset is not None:
         n_scenes = int(scenes_per_dataset)
     out_dir = Path(out_dir)
@@ -739,7 +758,7 @@ def generate_split(split, out_dir, scenes_per_dataset=None, workers=None):
     tasks, libraries, all_objects = [], {}, {}
     index = {"split": prefix, "scenes": [], "objects": [], "datasets": {}}
     for d_idx, dataset in enumerate(DATASETS):
-        cfg = CONFIG[dataset]
+        cfg = configs[dataset]
         library = []
         objects = {}
         for j in range(n_obj):
@@ -757,7 +776,7 @@ def generate_split(split, out_dir, scenes_per_dataset=None, workers=None):
         index["scenes"] += scene_ids
         index["objects"] += library
         for s_idx, sid in enumerate(scene_ids):
-            tasks.append((seed, d_idx, s_idx, dataset, sid, library, slim, str(out_dir)))
+            tasks.append((seed, d_idx, s_idx, dataset, sid, library, slim, str(out_dir), cfg, size))
     (out_dir / "index.json").write_text(json.dumps(index, indent=1))
     n_workers = min(_worker_count(workers), len(tasks))
     if n_workers > 1:
