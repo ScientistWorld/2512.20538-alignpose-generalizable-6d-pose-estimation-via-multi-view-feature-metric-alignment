@@ -19,19 +19,31 @@ This paper studies model-based 6D object pose estimation from multiple calibrate
 
 # Problem Definition
 
-This benchmark concerns multi-view 6D pose estimation for rigid objects. A solver receives multiple RGB images of the same scene, camera intrinsics, known camera extrinsics in a shared world frame, and a 3D model for each target object. It must output object identities, confidence scores, and 6D poses that are geometrically correct and consistent across the camera views.
+This benchmark concerns multi-view 6D pose estimation for rigid objects. A solver receives four RGB images of the same scene, the camera intrinsics, the camera extrinsics in a shared world frame, a textured 3D mesh for every object that may appear, and, for every view, a set of noisy pose candidates from a single-view pose estimator. It must output, for every scene, the objects present, a world-frame 6D pose for each, and a confidence score for each.
+
+The objects at test time are new: the hidden test scenes use an object library that does not appear in the visible train split. Only the meshes are available for them, so a solver may not train on the test objects; a short mesh-only onboarding at run time is allowed. No depth input is provided.
+
+The single-view candidates are imperfect in the ways real single-view estimators are: their distance from the camera is uncertain, their orientation can be off by several degrees and occasionally grossly wrong, an object can be missed in some views (especially when occluded) and spurious detections occur, including wrong object identities. Some objects are detected in only one or two of the four views.
+
+## Scene regimes
+
+The benchmark has three regimes, scored separately:
+
+- **textureless_clutter**: plain, weakly textured objects among several distractors, with frequent occlusion (a T-LESS-like setting).
+- **textured_household**: richly textured objects with lighter clutter (a YCB-V-like setting).
+- **reflective_industrial**: grayscale images of specular, weakly textured parts on a dark background (an ITODD-like setting).
 
 ## Research Question
 
-Can a system accurately estimate 6D poses for previously unseen objects from calibrated multi-view RGB images, without relying on object-specific training or depth input, and outperform strong single-view and multi-view baselines under BOP-style evaluation?
+Can a system accurately estimate 6D poses of previously unseen objects from calibrated multi-view RGB images and noisy single-view candidates, without object-specific training or depth input, and do better than both the single-view candidates and a geometric fusion of those candidates across views?
 
 ## Why It Matters
 
-Accurate 6D pose estimates are needed for robot manipulation, inspection, augmented reality, and scene understanding. Multi-view RGB setups can reduce single-view ambiguities from occlusion, clutter, and depth uncertainty while avoiding the cost or failure modes of depth sensors.
+Accurate 6D poses are needed for robot manipulation, inspection, augmented reality and scene understanding. Calibrated multi-camera RGB setups are common in industrial cells; they can resolve the depth ambiguity, occlusions and appearance ambiguities that limit single-view estimators, without the cost and failure modes of depth sensors on reflective objects.
 
 ## Success Criteria
 
-A successful solution should produce high-recall and high-precision object poses on multi-view test scenes, generalize to object meshes not used for training, work with RGB images plus calibration, and remain reliable on textureless, reflective, transparent, and cluttered scenes.
+A successful solution finds the objects that are present (recall), localizes them precisely in 3D and in every image (MSSD and MSPD errors), ranks correct estimates above wrong or duplicate ones (precision), and does so in all three regimes, including the textureless and reflective ones.
 
 ---
 
@@ -53,28 +65,52 @@ The primary claim is that multi-view feature-metric pose refinement improves AR 
 
 # Evaluation
 
-Evaluation should measure 6D object localization and detection quality under the same calibrated multi-view conditions used by the paper. This file describes only the task metrics and protocol, not any solution internals.
+This file describes the task metrics and the protocol only.
+
+## Interface
+
+A method is an executable script `submissions/<name>.sh`, called as
+
+```
+bash submissions/<name>.sh INPUT_DIR OUTPUT_JSON
+```
+
+`INPUT_DIR` has the layout described in `data/README.md` (images, calibration, per-view candidates, object meshes; no labels). The script writes
+
+```json
+{"detections": [{"scene_id": "...", "obj_id": "...", "R": [[...],[...],[...]], "t": [x, y, z], "score": 0.9}]}
+```
+
+with world-frame object poses (`x_world = R x_obj + t`, metres) and a confidence score used for ranking.
+
+- `scripts/evaluate_train.sh` runs every `submissions/*.sh` on a fresh copy of the visible train split (`data/train/`) and writes `scoring/scores_train.json`.
+- `scripts/evaluate_test.sh` (no arguments) generates the hidden test scenes at test time, runs every `submissions/*.sh` on its own fresh copy of them, and writes `scoring/scores_test.json`. The hidden test uses new scenes and a new object library in the same three regimes and the same format. The test's code and answers are not readable while submissions run, and a run may take at most 4 hours.
+
+## Validity
+
+The whole run is scored as failed, AR = AP = 0 in every experiment, if the script exits non-zero or times out, writes no file or invalid JSON, or any detection has: an unknown scene id, an object id outside the scene's object library, a non-finite number, a rotation matrix that is not orthonormal with determinant 1 (tolerance 1e-3), a translation above 1000 m, or a non-numeric score; or if a scene has more than 100 detections. Nothing besides `detections` is read.
 
 ## Metrics
 
-- **AR**: Average Recall for 6D object localization. It is the average of recall under the BOP VSD, MSSD, and MSPD pose-error functions across their thresholds. Higher is better.
-- **AP**: Average Precision for 6D object detection. It follows BOP/COCO-style ranked detection evaluation using pose-error correctness rather than 2D IoU. The paper averages AP over MSSD and MSPD. Higher is better.
-- **AR_VSD**: Recall based on Visible Surface Discrepancy, which compares rendered visible object surfaces and accounts for occlusion. Higher is better.
-- **AR_MSSD / AP_MSSD**: Recall or precision based on maximum symmetry-aware 3D surface distance. Higher is better.
-- **AR_MSPD / AP_MSPD**: Recall or precision based on maximum symmetry-aware 2D projection distance. Higher is better.
+Evaluation follows the BOP protocol used by the paper, **per image**: every scene detection is an estimate in each of the scene's four images (its pose expressed in that camera). A ground-truth instance is an (image, object) pair whose visible fraction in that image is at least 0.1; estimates of an object that is present but not visible in an image are ignored there. The objects are asymmetric.
 
-## Baselines and Targets
+- **MSSD**: maximum distance between model points under the estimated and true pose, relative to the object diameter. Thresholds 0.05, 0.10, ..., 0.50.
+- **MSPD**: maximum distance between projected model points in the image, in pixels. Thresholds 5, 10, ..., 50 px at 640 px image width, scaled to the actual width (2–20 px at 256 px).
+- **AR** (localization, higher is better): for each ground-truth instance the highest-scoring estimate of that object in the scene is evaluated; recall is averaged over the 10 thresholds of each error, over instances, and AR = (AR_MSSD + AR_MSPD) / 2. A missed object scores 0. The paper also averages a VSD term, which is not computed here.
+- **AP** (detection, higher is better): BOP/COCO-style 101-point interpolated average precision. All estimates of an object are ranked by score; the top estimate of an object in a scene is a true positive in an image if its error is below the threshold, and every other estimate (duplicates, wrong objects, objects not in the scene) is a false positive. AP is averaged over the 10 thresholds, over objects, and AP = (AP_MSSD + AP_MSPD) / 2. AP therefore penalizes duplicate and spurious hypotheses and badly calibrated confidences, which AR does not.
 
-Reference targets are stored in `scoring/reference.json`. The main comparison points are:
+Each regime (`textureless_clutter`, `textured_household`, `reflective_industrial`) is a separate experiment with AR and AP; weights and coefficients are in `scoring/reference.json`.
 
-- Single-view unseen-object pose estimators evaluated directly on each view group.
-- CosyPose multi-view refinement applied to the same candidate sources.
-- Published seen-object multi-view baselines on T-LESS where the paper reports a secondary comparison.
-- Ablation rows that compare single-view candidate quality against calibrated multi-view pose estimates under the same scene inputs.
+## Baselines
 
-## Evaluation Protocol
+The baselines in `submissions/` use only the supplied candidates, no images:
 
-Use the official BOP-style pose evaluation wherever possible. Evaluate on YCB-V, T-LESS, ITODD-MV, and HouseCat6D multi-view scenes with the camera calibration and object meshes supplied by each dataset. For YCB-V, T-LESS, and HouseCat6D, compare methods on the same sampled view groups; for ITODD-MV, use the provided four-view scenes. Report both AR and AP for the main results, and include the individual VSD/MSSD/MSPD components when available. Methods must output confidence scores so AP can be computed fairly.
+- `single_view_candidate`: the top hypothesis of every detection in the first view only.
+- `multiview_aggregation`: every candidate of every view, mapped to the world frame.
+- `multiview_aggregation_nms`: the same pool after removing overlapping duplicates in 3D.
+- `multiview_consensus`: a geometric multi-view fusion of mutually consistent candidates (a reprojection fit across views), comparable in spirit to the published multi-view refinement the paper compares against.
+
+`alignpose` is the reproduced reference method. The paper's real-data numbers are in `scoring/reference.json` under `_paper_*` keys for context; they are not on this benchmark's scale.
 
 ---
 
@@ -393,6 +429,62 @@ Use the official BOP-style pose evaluation wherever possible. Evaluate on YCB-V,
 - CPU verification job `0068b751-1e0` completed successfully with exit code 0 after one scheduler preemption and restart.
 - The job regenerated baseline predictions, AlignPose predictions, canonical scores, train scores, and test scores from the current camera-frame candidate interface.
 - Final canonical scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00, with exact pose copy rate 0.0 and no depth or object-specific training.
+
+</details>
+
+### Iteration 11: claude-opus-5-5 (hardener)
+- **Milestone**: `core_claim` | **Status**: done
+- **Working time**: 25m | **GPU**: 0.0h
+- **Jobs**: 5 total (4 completed, 0 failed)
+
+<details>
+<summary>Progress Log</summary>
+
+### [2026-05-29 03:22] - method_runs
+- Previous reduced AlignPose pipeline ran end-to-end on the scheduler.
+- After audit, revised the method to use local DINOv2-S patch features, rendered RGB-D registered features, and explicit scored protocol constraints.
+- Submitting a CPU test job to validate the revised end-to-end pipeline before restoring any `core_claim` claim.
+
+### [2026-05-29 03:27] - method_runs
+- CPU test job `216bf4fb-60f` failed during DINO preprocessing setup because `AutoImageProcessor` required `torchvision`.
+- Replaced `AutoImageProcessor` with direct local preprocessing from `preprocessor_config.json`, keeping offline DINOv2-S features and avoiding the missing dependency.
+- Resubmitting the revised end-to-end reproduction job.
+
+### [2026-05-29 03:35] - core_claim
+- CPU test job `926ce860-7c2` completed successfully with the revised DINOv2-S query/render feature pipeline.
+- On the 12-scene reduced benchmark, AlignPose improved over the single-view candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00.
+- The score artifact includes the core constraints: four calibrated RGB views, no depth sensor, no object-specific training, frozen DINOv2 features, and duplicate suppression.
+
+### [2026-05-29 03:58] - method_runs
+- Packaging audit found that `scripts/run.sh` evaluated stale prediction artifacts and that canonical `scores.json` lacked the newer integrity metrics.
+- Updated scheduler execution to regenerate baseline and AlignPose predictions before all scoring steps.
+- Split method-visible synthetic inputs from evaluation labels by adding `data/synthetic_inputs.json`; submitting a CPU test job before restoring `core_claim`.
+
+### [2026-05-29 04:08] - method_runs
+- Final verification found that the last completed CPU job predated the patched scheduler script, so canonical `scores.json` remained stale.
+- Updated `scripts/evaluate.sh` to discover all prediction artifacts through the reusable evaluator interface.
+- Submitting a CPU test job to regenerate method outputs and all score files before final `core_claim` sign-off.
+
+### [2026-05-29 04:25] - core_claim
+- CPU verification job `b00a7706-137` completed successfully with exit code 0.
+- `scripts/run.sh` regenerated baseline and AlignPose prediction artifacts, then refreshed canonical, train, and test score files.
+- Final scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00 with no ground-truth pose copying.
+
+### [2026-05-29 04:30] - method_runs
+- Tightened the synthetic interface so method-visible candidates are camera-frame `T_CO` poses, matching the paper's per-view input contract.
+- Updated AlignPose and the single-view baseline to transform candidates through known camera extrinsics before world-frame aggregation and scoring.
+- Added an offline scheduler preflight so compute jobs verify cached DINOv2 files without attempting network access.
+- Submitting a CPU verification job before restoring the `core_claim` milestone for this patched method path.
+
+### [2026-05-29 04:40] - core_claim
+- CPU verification job `0068b751-1e0` completed successfully with exit code 0 after one scheduler preemption and restart.
+- The job regenerated baseline predictions, AlignPose predictions, canonical scores, train scores, and test scores from the current camera-frame candidate interface.
+- Final canonical scores support the core claim on the reduced benchmark: AlignPose improved over the candidate baseline from AR 47.22 / AP 50.00 to AR 97.22 / AP 100.00, with exact pose copy rate 0.0 and no depth or object-specific training.
+
+### [2026-11-13] - core_claim (hardening, iteration 11)
+- Rebuilt gym: hidden test scenes (3 regimes x 60 four-view scenes, unseen objects) generated at test time; every submission run on a fresh copy; per-image BOP AR/AP recomputed from raw detections; failed/invalid runs get AR = AP = 0 everywhere; test code moved out of reach while submissions run.
+- Candidate simulator calibrated on a separate dev split (halved depth error, lower per-view detection) so the reproduced method converges from most coarse poses, as in the paper; the image-free geometric consensus baseline no longer outranks it (rank -0.104, was +0.315).
+- Hidden test, reference AR/AP: textureless 73.82/72.96, textured 82.00/80.59, reflective 59.32/56.81; single-view 35.99/48.64/23.07 AR; aggregation+NMS 58.75/67.41/49.05 AR. Better variants +0.41/+0.33 rank, weaker -0.22; all shortcuts fail or tie. Details in HARDENING.md.
 
 </details>
 

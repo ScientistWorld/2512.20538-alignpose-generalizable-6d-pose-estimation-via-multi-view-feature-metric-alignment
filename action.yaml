@@ -1,8 +1,6 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: core_claim
-notes: "Final hardening run: regenerate train split with calibrated generator, score reference+baselines on train and hidden test (per-image BOP AR/AP), audit better/weaker variants and shortcuts on the hidden test with paired bootstrap."
+notes: "Hardened gym: hidden test generated at test time, per-image BOP AR/AP from raw detections, failures score 0 everywhere, test code hidden during runs; candidates calibrated on a dev split so the geometric consensus baseline no longer outranks the reference (-0.10, was +0.32); better variants +0.33/+0.41, weaker -0.22, all shortcuts fail or tie. See HARDENING.md."
