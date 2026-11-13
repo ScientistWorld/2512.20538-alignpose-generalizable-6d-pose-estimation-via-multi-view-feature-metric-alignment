@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Calibration study on a dev-only split (seed separate from train/test): reference vs consensus/NMS baselines at 256 vs 512 px, halved candidate depth error, lower per-view detection rate; plus multi-hypothesis and pixel-feature variants."
+notes: "Final hardening run: regenerate train split with calibrated generator, score reference+baselines on train and hidden test (per-image BOP AR/AP), audit better/weaker variants and shortcuts on the hidden test with paired bootstrap."
